@@ -17,6 +17,7 @@ const MAX_SIZE_MB = 5;
 const MODULO_STORAGE_KEY = "procura-modulo";
 const VERIFICATION_DELAY_MS = 2000;
 const DOWNLOAD_CONFIRMATION_MS = 800;
+const CONTINUE_TRANSITION_MS = 1400;
 
 const EMPTY_STATE: DocumentState = {
   status: "empty",
@@ -41,6 +42,7 @@ export default function ProcuraUploadScreen({ onContinue }: ProcuraUploadScreenP
   const [verificationPhase, setVerificationPhase] = useState<VerificationPhase>("idle");
   const [showUploadHint, setShowUploadHint] = useState(false);
   const [showContinueHint, setShowContinueHint] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
   const isReadyToContinue = verificationPhase === "received";
   const isStep1Done = hasDownloaded;
@@ -94,16 +96,21 @@ export default function ProcuraUploadScreen({ onContinue }: ProcuraUploadScreenP
   };
 
   const handleContinueClick = () => {
+    if (isTransitioning) return;
+
     if (!isReadyToContinue) {
       setShowContinueHint(true);
       return;
     }
-    onContinue();
+
+    setIsTransitioning(true);
+    setTimeout(onContinue, CONTINUE_TRANSITION_MS);
   };
 
   return (
     <div className="animate-fade-in-up relative flex flex-1 flex-col items-center justify-center px-6 py-16 text-center">
       {showDownloadConfirmation && <SuccessOverlay message="Scaricato ✓" />}
+      {isTransitioning && <SuccessOverlay message="Tutto corretto, grazie!" />}
 
       <div className="flex w-full max-w-md flex-col items-center gap-8 sm:max-w-lg">
         <div className="flex flex-col items-center gap-3">
@@ -124,7 +131,7 @@ export default function ProcuraUploadScreen({ onContinue }: ProcuraUploadScreenP
         </div>
 
         <div className="flex w-full flex-col items-center gap-6">
-          <StepRow label="Scarica il modulo" isComplete={isStep1Done}>
+          <StepRow number={1} label="Scarica il modulo" isComplete={isStep1Done}>
             <button
               type="button"
               onClick={handleDownloadClick}
@@ -138,13 +145,22 @@ export default function ProcuraUploadScreen({ onContinue }: ProcuraUploadScreenP
             </button>
           </StepRow>
 
-          <StepRow label="Firmalo, poi torna qui" isComplete={isStep2Done}>
+          <StepRow
+            number={2}
+            label={
+              <>
+                <span className={hasDownloaded ? "text-accent" : undefined}>Firmalo</span>, poi
+                torna qui
+              </>
+            }
+            isComplete={isStep2Done}
+          >
             <p className="text-sm text-muted">
               Stampa il modulo, firmalo a mano, poi torna su questa pagina per caricarlo.
             </p>
           </StepRow>
 
-          <StepRow label="Carica il modulo firmato" isComplete={isStep3Done}>
+          <StepRow number={3} label="Carica il modulo firmato" isComplete={isStep3Done}>
             <div className="w-full">
               {documentState.status === "empty" && (
                 <p className="mb-2 text-xs text-muted">
@@ -220,22 +236,23 @@ export default function ProcuraUploadScreen({ onContinue }: ProcuraUploadScreenP
 }
 
 type StepRowProps = {
-  label: string;
+  number: number;
+  label: ReactNode;
   isComplete: boolean;
   children: ReactNode;
 };
 
-function StepRow({ label, isComplete, children }: StepRowProps) {
+function StepRow({ number, label, isComplete, children }: StepRowProps) {
   return (
     <div className="flex w-full flex-col items-center gap-3">
-      <span
-        className={`flex items-center gap-1.5 text-sm font-medium ${
-          isComplete ? "text-dark" : "text-dark/70"
-        }`}
-      >
+      <div className="flex w-full max-w-xs items-center justify-between sm:max-w-sm">
+        <span
+          className={`text-sm font-medium ${isComplete ? "text-dark" : "text-dark/70"}`}
+        >
+          {number}. {label}
+        </span>
         {isComplete && <CheckIcon />}
-        {label}
-      </span>
+      </div>
       {children}
     </div>
   );
@@ -258,8 +275,8 @@ function StepBadge({ number, done }: { number: number; done: boolean }) {
 function CheckIcon() {
   return (
     <svg
-      width="14"
-      height="14"
+      width="16"
+      height="16"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"

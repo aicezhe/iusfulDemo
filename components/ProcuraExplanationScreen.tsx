@@ -20,7 +20,11 @@ export default function ProcuraExplanationScreen({
         </h1>
 
         <p className="mt-2 max-w-xs text-base leading-relaxed text-muted sm:max-w-sm sm:text-lg">
-          Ci autorizza a seguire la tua pratica in tribunale.
+          Ci autorizza a seguire
+          <br />
+          <span className="text-dark underline decoration-accent decoration-2 underline-offset-4">
+            la tua pratica in tribunale.
+          </span>
           <br />
           Bastano 3 passaggi veloci.
         </p>
