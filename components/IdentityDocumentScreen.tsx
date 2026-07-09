@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import BackButton from "./BackButton";
 import DocumentTypeCycler from "./DocumentTypeCycler";
 import FileUploadSlot from "./FileUploadSlot";
 import StepIndicator from "./StepIndicator";
@@ -27,10 +28,12 @@ const EMPTY_STATE: DocumentState = {
 
 type IdentityDocumentScreenProps = {
   onContinue: () => void;
+  onBack: () => void;
 };
 
 export default function IdentityDocumentScreen({
   onContinue,
+  onBack,
 }: IdentityDocumentScreenProps) {
   const [frontState, setFrontState] = useState<DocumentState>(EMPTY_STATE);
   const [backState, setBackState] = useState<DocumentState>(EMPTY_STATE);
@@ -97,6 +100,7 @@ export default function IdentityDocumentScreen({
 
   return (
     <div className="animate-fade-in-up relative flex flex-1 flex-col items-center justify-center px-6 py-16 text-center">
+      <BackButton onBack={onBack} />
       {isTransitioning && <SuccessOverlay message="Tutto corretto, grazie!" />}
 
       <div className="flex w-full max-w-md flex-col items-center gap-8 sm:max-w-lg">

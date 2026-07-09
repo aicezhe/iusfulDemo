@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { ReactNode } from "react";
+import BackButton from "./BackButton";
 import FileUploadSlot from "./FileUploadSlot";
 import StepIndicator from "./StepIndicator";
 import SuccessOverlay from "./SuccessOverlay";
@@ -30,9 +31,10 @@ type VerificationPhase = "idle" | "verifying" | "received";
 
 type ProcuraUploadScreenProps = {
   onContinue: () => void;
+  onBack: () => void;
 };
 
-export default function ProcuraUploadScreen({ onContinue }: ProcuraUploadScreenProps) {
+export default function ProcuraUploadScreen({ onContinue, onBack }: ProcuraUploadScreenProps) {
   const [hasDownloaded, setHasDownloaded] = useState(false);
   const [showDownloadConfirmation, setShowDownloadConfirmation] = useState(false);
   const [documentState, setDocumentState] = useState<DocumentState>(EMPTY_STATE);
@@ -109,6 +111,7 @@ export default function ProcuraUploadScreen({ onContinue }: ProcuraUploadScreenP
 
   return (
     <div className="animate-fade-in-up relative flex flex-1 flex-col items-center justify-center px-6 py-16 text-center">
+      <BackButton onBack={onBack} />
       {showDownloadConfirmation && <SuccessOverlay message="Scaricato ✓" />}
       {isTransitioning && <SuccessOverlay message="Tutto corretto, grazie!" />}
 
