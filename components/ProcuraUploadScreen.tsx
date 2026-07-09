@@ -105,7 +105,7 @@ export default function ProcuraUploadScreen({ onContinue }: ProcuraUploadScreenP
       <div className="flex w-full max-w-md flex-col items-center gap-8 sm:max-w-lg">
         <div className="flex flex-col items-center gap-3">
           <StepIndicator totalSteps={2} currentStep={2} />
-          <h1 className="font-serif text-3xl leading-snug text-dark sm:text-4xl">
+          <h1 className="font-serif text-3xl font-medium leading-snug text-dark sm:text-4xl">
             Procura alle liti
           </h1>
 
@@ -131,7 +131,7 @@ export default function ProcuraUploadScreen({ onContinue }: ProcuraUploadScreenP
             <button
               type="button"
               onClick={handleDownloadClick}
-              className={`flex items-center justify-center rounded-full px-8 py-3 text-base font-medium leading-none shadow-sm transition-colors ${
+              className={`flex items-center justify-center rounded-full px-8 py-3 text-base font-semibold leading-none shadow-sm transition-colors ${
                 hasDownloaded
                   ? "border border-dark/20 text-dark hover:bg-dark/5"
                   : "bg-accent text-dark hover:bg-accent/90"
@@ -189,7 +189,7 @@ export default function ProcuraUploadScreen({ onContinue }: ProcuraUploadScreenP
               )}
 
               {verificationPhase === "received" && (
-                <p className="mt-2 text-sm font-medium text-dark">✓ Documento ricevuto</p>
+                <p className="mt-2 text-sm font-semibold text-dark">✓ Documento ricevuto</p>
               )}
             </div>
           </StepRow>
@@ -202,7 +202,7 @@ export default function ProcuraUploadScreen({ onContinue }: ProcuraUploadScreenP
             onMouseEnter={() => !isReadyToContinue && setShowContinueHint(true)}
             onMouseLeave={() => setShowContinueHint(false)}
             aria-disabled={!isReadyToContinue}
-            className={`flex w-[85%] items-center justify-center rounded-full px-10 py-3 text-base font-medium leading-none shadow-sm transition-colors sm:w-auto sm:px-14 ${
+            className={`flex w-[85%] items-center justify-center rounded-full px-10 py-3 text-base font-semibold leading-none shadow-sm transition-colors sm:w-auto sm:px-14 ${
               isReadyToContinue
                 ? "bg-dark text-text-light hover:bg-dark/90"
                 : "cursor-not-allowed bg-dark/40 text-text-light"

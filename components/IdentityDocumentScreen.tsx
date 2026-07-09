@@ -109,7 +109,7 @@ export default function IdentityDocumentScreen({
           <DocumentTypeCycler />
 
           <div className="flex flex-col items-center gap-3">
-            <h1 className="font-serif text-3xl leading-snug text-dark sm:text-4xl">
+            <h1 className="font-serif text-3xl font-medium leading-snug text-dark sm:text-4xl">
               Documento d&apos;identità
             </h1>
             <StepIndicator totalSteps={2} currentStep={1} />
@@ -145,15 +145,13 @@ export default function IdentityDocumentScreen({
             onMouseEnter={() => !isReady && setShowHint(true)}
             onMouseLeave={() => setShowHint(false)}
             aria-disabled={!isReady}
-            className={`flex w-[85%] items-center justify-center rounded-full px-10 py-3 text-base font-medium leading-none shadow-sm transition-colors sm:w-auto sm:px-14 ${
+            className={`flex w-[85%] items-center justify-center rounded-full px-10 py-3 text-base font-semibold leading-none shadow-sm transition-colors sm:w-auto sm:px-14 ${
               isReady
                 ? "bg-dark text-text-light hover:bg-dark/90"
                 : "cursor-not-allowed bg-dark/40 text-text-light"
             }`}
           >
-            {phase === "confirmed"
-              ? "Ultimo passaggio — al secondo documento"
-              : "Avanti"}
+            Avanti
           </button>
 
           {showHint && !isReady && (

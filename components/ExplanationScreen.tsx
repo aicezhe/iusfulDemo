@@ -10,12 +10,10 @@ export default function ExplanationScreen({ onContinue }: ExplanationScreenProps
       <FullWidthDivider className="top-8" />
 
       <div className="flex -translate-y-[6%] flex-col items-center">
-        <h1 className="max-w-xs font-serif text-xl leading-snug text-dark sm:max-w-2xl sm:text-4xl">
+        <h1 className="max-w-xs font-serif text-xl font-medium leading-snug text-dark sm:max-w-2xl sm:text-4xl">
           Ti guidiamo <span className="italic text-accent">passo dopo passo</span>
           <br />
-          non serve sapere
-          <br />
-          nulla di legale.
+          non serve sapere nulla di legale.
         </h1>
 
         <p className="mt-6 max-w-xs text-base leading-relaxed text-muted sm:mt-8 sm:max-w-sm sm:text-lg">
@@ -27,7 +25,7 @@ export default function ExplanationScreen({ onContinue }: ExplanationScreenProps
         <button
           type="button"
           onClick={onContinue}
-          className="mt-10 rounded-full bg-dark px-10 py-3 text-base font-medium text-text-light shadow-sm transition-colors hover:bg-dark/90 sm:mt-12 sm:px-14"
+          className="mt-10 rounded-full bg-dark px-10 py-3 text-base font-semibold text-text-light shadow-sm transition-colors hover:bg-dark/90 sm:mt-12 sm:px-14"
         >
           Vai al caricamento documenti
         </button>

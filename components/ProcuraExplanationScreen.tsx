@@ -15,7 +15,7 @@ export default function ProcuraExplanationScreen({
       <div className="flex -translate-y-[6%] flex-col items-center gap-4">
         <StepIndicator totalSteps={2} currentStep={2} />
 
-        <h1 className="max-w-xs font-serif text-2xl leading-snug text-dark sm:max-w-md sm:text-4xl">
+        <h1 className="max-w-xs font-serif text-2xl font-medium leading-snug text-dark sm:max-w-md sm:text-4xl">
           Procura alle liti
         </h1>
 
@@ -28,7 +28,7 @@ export default function ProcuraExplanationScreen({
         <button
           type="button"
           onClick={onContinue}
-          className="mt-10 flex items-center justify-center rounded-full bg-dark px-10 py-3 text-base font-medium leading-none text-text-light shadow-sm transition-colors hover:bg-dark/90 sm:mt-12 sm:px-14"
+          className="mt-10 flex items-center justify-center rounded-full bg-dark px-10 py-3 text-base font-semibold leading-none text-text-light shadow-sm transition-colors hover:bg-dark/90 sm:mt-12 sm:px-14"
         >
           Continua
         </button>
