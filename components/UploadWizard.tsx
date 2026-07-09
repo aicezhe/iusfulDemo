@@ -35,28 +35,25 @@ export default function UploadWizard() {
   const goToNextStep = () => setCurrentStep((step) => step + 1);
   const goToPreviousStep = () => setCurrentStep((step) => Math.max(1, step - 1));
 
-  // Every screen stays mounted for the lifetime of the wizard and is only
-  // hidden via CSS when it's not the current step (instead of being removed
-  // from the tree). Unmounting would wipe each screen's own state — selected
-  // files, upload status, download progress — so navigating back and forth
-  // would silently lose what the user already did.
+  // Only the current step is rendered at all — each screen's own state
+  // (selected files, upload status) already persists to localStorage, so
+  // remounting on navigation restores it via `previouslyUploaded`/similar
+  // flags without needing to keep every screen mounted in the DOM.
   return (
     <div className="flex min-h-screen flex-1 flex-col bg-bg">
-      <div className={currentStep === 1 ? "contents" : "hidden"}>
-        <IntroScreen onStart={goToNextStep} />
-      </div>
-      <div className={currentStep === 2 ? "contents" : "hidden"}>
+      {currentStep === 1 && <IntroScreen onStart={goToNextStep} />}
+      {currentStep === 2 && (
         <ExplanationScreen onContinue={goToNextStep} onBack={goToPreviousStep} />
-      </div>
-      <div className={currentStep === 3 ? "contents" : "hidden"}>
+      )}
+      {currentStep === 3 && (
         <IdentityDocumentScreen onContinue={goToNextStep} onBack={goToPreviousStep} />
-      </div>
-      <div className={currentStep === 4 ? "contents" : "hidden"}>
+      )}
+      {currentStep === 4 && (
         <ProcuraExplanationScreen onContinue={goToNextStep} onBack={goToPreviousStep} />
-      </div>
-      <div className={currentStep === 5 ? "contents" : "hidden"}>
+      )}
+      {currentStep === 5 && (
         <ProcuraUploadScreen onContinue={goToNextStep} onBack={goToPreviousStep} />
-      </div>
+      )}
     </div>
   );
 }
