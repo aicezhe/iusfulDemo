@@ -17,11 +17,8 @@ export default function IntroScreen({ onStart }: IntroScreenProps) {
         senza complicazioni.
       </h1>
 
-      <div className="flex max-w-xs items-center gap-4 rounded-2xl border border-muted/30 bg-white/40 px-5 py-4 text-left sm:max-w-sm">
-        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-accent/15">
-          <LockIcon />
-        </span>
-        <p className="font-mono text-sm text-text">
+      <div className="-mx-6 flex w-[calc(100%+3rem)] flex-col items-center bg-white/30 px-6 py-10">
+        <p className="max-w-xs font-mono text-sm text-text sm:max-w-sm">
           I tuoi documenti sono trattati in modo{" "}
           <span className="text-accent">sicuro e riservato</span>.
         </p>
@@ -50,23 +47,5 @@ function FullWidthDivider({ className }: { className: string }) {
       <span className="h-1 w-1 rounded-full bg-muted/60" />
       <span className="h-px flex-1 bg-muted/40" />
     </div>
-  );
-}
-
-function LockIcon() {
-  return (
-    <svg
-      width="18"
-      height="18"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      className="text-accent"
-      aria-hidden="true"
-    >
-      <rect x="5" y="11" width="14" height="9" rx="2" />
-      <path d="M8 11V7a4 4 0 0 1 8 0v4" />
-    </svg>
   );
 }
