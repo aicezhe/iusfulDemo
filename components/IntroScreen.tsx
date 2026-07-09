@@ -22,7 +22,7 @@ export default function IntroScreen({ onStart }: IntroScreenProps) {
           <span className="text-text/50">I tuoi documenti sono trattati</span>
           <br />
           <span className="text-text/50">in modo </span>
-          <span className="font-semibold text-accent">sicuro e riservato</span>
+          <span className="font-semibold text-[#1c2536]">sicuro e riservato</span>
           <span className="text-text/50">.</span>
         </p>
       </div>
