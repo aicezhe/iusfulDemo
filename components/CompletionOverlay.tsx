@@ -41,11 +41,9 @@ export default function CompletionOverlay({ onDismiss }: CompletionOverlayProps)
       {/* Base state is the fully-shown card; the entrance animation overrides
           it while playing, so reduced-motion (animate-none) shows it at once. */}
       <div className="animate-completion-card relative w-full max-w-sm rounded-2xl bg-bg px-8 py-10 text-center shadow-xl motion-reduce:animate-none">
-        <CheckmarkBadge />
-
         <h2
           id="completion-title"
-          className="mt-6 font-serif text-2xl font-medium text-dark"
+          className="font-serif text-2xl font-medium text-dark"
         >
           Documenti ricevuti
         </h2>
@@ -53,8 +51,8 @@ export default function CompletionOverlay({ onDismiss }: CompletionOverlayProps)
         <ul className="mx-auto mt-6 flex w-fit flex-col gap-2.5 text-left">
           {UPLOADED_DOCUMENTS.map((document) => (
             <li key={document} className="flex items-center gap-2.5 text-sm text-dark">
-              <CheckIcon />
-              {document}
+              <CircleCheckIcon />
+              <span className="italic">{document}</span>
             </li>
           ))}
         </ul>
@@ -76,42 +74,23 @@ export default function CompletionOverlay({ onDismiss }: CompletionOverlayProps)
   );
 }
 
-function CheckmarkBadge() {
+function CircleCheckIcon() {
   return (
-    <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-dark/10">
+    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-dark">
       <svg
-        width="32"
-        height="32"
+        width="12"
+        height="12"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
-        strokeWidth="2.5"
+        strokeWidth="3"
         strokeLinecap="round"
         strokeLinejoin="round"
-        className="text-dark"
+        className="text-text-light"
         aria-hidden="true"
       >
         <path d="M5 12.5l4.5 4.5L19 7" />
       </svg>
     </span>
-  );
-}
-
-function CheckIcon() {
-  return (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="shrink-0 text-dark"
-      aria-hidden="true"
-    >
-      <path d="M5 12.5l4.5 4.5L19 7" />
-    </svg>
   );
 }
