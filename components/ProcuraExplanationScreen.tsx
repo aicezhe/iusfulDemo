@@ -24,13 +24,23 @@ export default function ProcuraExplanationScreen({
         </h1>
 
         <div className="mt-2 flex flex-col items-center gap-4">
-          <p className="max-w-xs text-base leading-relaxed text-muted sm:max-w-sm sm:text-lg">
-            Ci autorizza a seguire
-            <br />
-            <span className="font-medium text-dark underline decoration-accent decoration-2 underline-offset-4">
-              la tua pratica in tribunale.
+          <div className="flex flex-col items-center gap-2">
+            <p className="text-base leading-relaxed text-muted sm:text-lg">
+              Ci autorizza a seguire
+            </p>
+            <span className="flex flex-col items-center gap-1.5">
+              <span className="font-serif text-base italic text-accent sm:text-lg">
+                la tua pratica in tribunale.
+              </span>
+              {/* Thin green "line + dot" underline — the same decorative motif
+                  as the full-width dividers on the intro screen. */}
+              <span className="flex w-full items-center gap-1.5" aria-hidden="true">
+                <span className="h-px flex-1 bg-dark/35" />
+                <span className="h-1 w-1 rounded-full bg-dark/50" />
+                <span className="h-px flex-1 bg-dark/35" />
+              </span>
             </span>
-          </p>
+          </div>
 
           <p className="text-sm text-muted/70">Bastano 3 passaggi veloci.</p>
         </div>

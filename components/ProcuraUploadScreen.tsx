@@ -33,6 +33,8 @@ const EMPTY_STATE: DocumentState = {
 
 type VerificationPhase = "idle" | "verifying" | "received";
 
+type StepStatus = "upcoming" | "active" | "completed";
+
 type ProcuraUploadScreenProps = {
   onBack: () => void;
 };
@@ -59,9 +61,21 @@ export default function ProcuraUploadScreen({ onBack }: ProcuraUploadScreenProps
   /* eslint-enable react-hooks/set-state-in-effect */
 
   const isReadyToContinue = verificationPhase === "received";
-  const isStep1Done = hasDownloaded;
-  const isStep2Done = documentState.status === "success";
-  const isStep3Done = verificationPhase === "received";
+
+  // Three-state progress for the sub-steps, derived from real progress so it
+  // can never drift out of sync: a step is "completed" once its work is done,
+  // "active" if it's the first not-yet-done step, "upcoming" otherwise.
+  const stepCompletion = [
+    hasDownloaded,
+    documentState.status === "loading" || documentState.status === "success",
+    verificationPhase === "received",
+  ];
+  const activeStepIndex = stepCompletion.findIndex((done) => !done);
+  const stepStatusFor = (index: number): StepStatus => {
+    if (stepCompletion[index]) return "completed";
+    if (index === activeStepIndex) return "active";
+    return "upcoming";
+  };
 
   const handleDownloadClick = () => {
     // The anchor performs the actual download/open natively — this only
@@ -141,9 +155,9 @@ export default function ProcuraUploadScreen({ onBack }: ProcuraUploadScreenProps
           </h1>
 
           <div className="flex items-center gap-2" aria-hidden="true">
-            <StepBadge number={1} done={isStep1Done} />
-            <StepBadge number={2} done={isStep2Done} />
-            <StepBadge number={3} done={isStep3Done} />
+            <StepBadge number={1} status={stepStatusFor(0)} />
+            <StepBadge number={2} status={stepStatusFor(1)} />
+            <StepBadge number={3} status={stepStatusFor(2)} />
           </div>
 
           <p className="max-w-sm text-sm text-muted">
@@ -152,7 +166,7 @@ export default function ProcuraUploadScreen({ onBack }: ProcuraUploadScreenProps
         </div>
 
         <div className="flex w-full flex-col items-center gap-6">
-          <StepRow number={1} label="Scarica il modulo" isComplete={isStep1Done}>
+          <StepRow number={1} label="Scarica il modulo" status={stepStatusFor(0)}>
             <a
               href={MODULO_FILE_PATH}
               download="procura-alle-liti.pdf"
@@ -173,23 +187,18 @@ export default function ProcuraUploadScreen({ onBack }: ProcuraUploadScreenProps
             </p>
           </StepRow>
 
-          <StepRow
-            number={2}
-            label={
-              <>
-                <span className={hasDownloaded ? "text-accent" : undefined}>Firmalo</span>, poi
-                torna qui
-              </>
-            }
-            isComplete={isStep2Done}
-          >
+          <StepDivider />
+
+          <StepRow number={2} label="Firmalo, poi torna qui" status={stepStatusFor(1)}>
             <p className="text-sm text-muted">
               Stampalo e firmalo a mano, oppure firma digitalmente il PDF
               scaricato. Poi torna qui per caricarlo.
             </p>
           </StepRow>
 
-          <StepRow number={3} label="Carica il modulo firmato" isComplete={isStep3Done}>
+          <StepDivider />
+
+          <StepRow number={3} label="Carica il modulo firmato" status={stepStatusFor(2)}>
             <div className="w-full">
               {documentState.status === "empty" && (
                 <p className="mb-2 text-xs text-muted">
@@ -264,37 +273,51 @@ export default function ProcuraUploadScreen({ onBack }: ProcuraUploadScreenProps
   );
 }
 
+const STEP_LABEL_COLOR: Record<StepStatus, string> = {
+  upcoming: "text-muted",
+  active: "text-accent",
+  completed: "text-dark",
+};
+
 type StepRowProps = {
   number: number;
   label: ReactNode;
-  isComplete: boolean;
+  status: StepStatus;
   children: ReactNode;
 };
 
-function StepRow({ number, label, isComplete, children }: StepRowProps) {
+function StepRow({ number, label, status, children }: StepRowProps) {
   return (
     <div className="flex w-full flex-col items-center gap-3">
       <div className="flex w-full max-w-xs items-center justify-between sm:max-w-sm">
-        <span
-          className={`text-sm font-medium ${isComplete ? "text-dark" : "text-dark/70"}`}
-        >
+        <span className={`text-sm font-medium ${STEP_LABEL_COLOR[status]}`}>
           {number}. {label}
         </span>
-        {isComplete && <CheckIcon />}
+        {status === "completed" && <CheckIcon />}
       </div>
       {children}
     </div>
   );
 }
 
-function StepBadge({ number, done }: { number: number; done: boolean }) {
+function StepDivider() {
+  // Barely-there section separator, echoing the thin dividers between sections
+  // of the Iusful "Fascicolo" card.
+  return (
+    <span className="h-px w-full max-w-xs bg-dark/10 sm:max-w-sm" aria-hidden="true" />
+  );
+}
+
+const STEP_BADGE_COLOR: Record<StepStatus, string> = {
+  upcoming: "border-2 border-dark/25 text-dark/40",
+  active: "border-2 border-accent text-accent",
+  completed: "border-2 border-dark bg-dark text-text-light",
+};
+
+function StepBadge({ number, status }: { number: number; status: StepStatus }) {
   return (
     <span
-      className={
-        done
-          ? "flex h-6 w-6 items-center justify-center rounded-full bg-dark text-xs font-medium text-text-light"
-          : "flex h-6 w-6 items-center justify-center rounded-full border-2 border-dark/30 text-xs font-medium text-dark/50"
-      }
+      className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-medium ${STEP_BADGE_COLOR[status]}`}
     >
       {number}
     </span>
