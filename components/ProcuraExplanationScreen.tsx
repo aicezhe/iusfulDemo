@@ -25,12 +25,12 @@ export default function ProcuraExplanationScreen({
 
         <div className="mt-2 flex flex-col items-center gap-4">
           <div className="flex flex-col items-center gap-2">
-            <p className="text-base leading-relaxed text-muted sm:text-lg">
-              Ci autorizza a seguire
+            <p className="max-w-xs text-base leading-relaxed text-dark sm:max-w-sm sm:text-lg">
+              In pratica, ci dai il permesso di parlare per te in tribunale —
             </p>
             <span className="flex flex-col items-center gap-1.5">
               <span className="font-serif text-base italic text-accent sm:text-lg">
-                la tua pratica in tribunale.
+                così non devi andarci di persona.
               </span>
               {/* Thin green "line + dot" underline — the same decorative motif
                   as the full-width dividers on the intro screen. */}
