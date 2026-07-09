@@ -4,36 +4,45 @@ type IntroScreenProps = {
 
 export default function IntroScreen({ onStart }: IntroScreenProps) {
   return (
-    <div className="animate-fade-in-up relative flex flex-1 flex-col items-center justify-center gap-8 px-6 py-16 text-center">
+    <div className="animate-fade-in-up relative flex flex-1 flex-col items-center justify-center px-6 py-16 text-center">
       <FullWidthDivider className="top-8" />
 
-      <p className="font-serif text-lg tracking-wide text-dark">
-        ius<span className="text-accent">·</span>ful
-      </p>
-
-      <h1 className="max-w-xs font-serif text-3xl leading-snug text-dark sm:max-w-sm sm:text-4xl">
-        Due <span className="text-accent">documenti</span>,
-        <br />
-        senza complicazioni.
-      </h1>
-
-      <div className="-mx-6 flex w-[calc(100%+3rem)] flex-col items-center bg-white/30 px-6 py-10">
-        <p className="max-w-xs font-mono text-sm leading-relaxed tracking-wide sm:max-w-sm">
-          <span className="text-text/50">I tuoi documenti sono trattati</span>
-          <br />
-          <span className="text-text/50">in modo </span>
-          <span className="font-semibold text-[#1c2536]">sicuro e riservato</span>
-          <span className="text-text/50">.</span>
+      <div className="flex -translate-y-[6%] flex-col items-center gap-8">
+        <p className="font-serif text-lg tracking-wide text-[#1A2845]">
+          ius<span className="text-accent">·</span>ful
         </p>
-      </div>
 
-      <button
-        type="button"
-        onClick={onStart}
-        className="rounded-full bg-dark px-10 py-3 font-sans text-base font-medium text-text-light transition-colors hover:bg-dark/90"
-      >
-        Inizia
-      </button>
+        <h1 className="max-w-xs font-serif text-3xl leading-snug text-[#1A2845] sm:max-w-sm sm:text-4xl">
+          Due documenti,
+          <br />
+          <span className="text-accent">senza complicazioni.</span>
+        </h1>
+
+        <div className="relative w-full max-w-xs overflow-hidden rounded-2xl border-t border-b border-accent/15 bg-accent/5 px-5 py-4 shadow-sm sm:max-w-sm">
+          <div
+            className="pointer-events-none absolute inset-0 opacity-[0.04]"
+            style={{
+              backgroundImage: "radial-gradient(#1A2845 1px, transparent 1px)",
+              backgroundSize: "14px 14px",
+            }}
+            aria-hidden="true"
+          />
+          <div className="relative flex items-center gap-3">
+            <ShieldIcon />
+            <p className="text-left text-sm font-normal text-[#1A2845]">
+              I tuoi documenti sono trattati in modo sicuro e riservato.
+            </p>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          onClick={onStart}
+          className="w-[85%] rounded-full bg-accent px-10 py-3 text-base font-medium text-[#1A2845] transition-colors hover:bg-accent/90 sm:w-auto sm:px-14"
+        >
+          Inizia
+        </button>
+      </div>
 
       <FullWidthDivider className="bottom-12" />
     </div>
@@ -50,5 +59,23 @@ function FullWidthDivider({ className }: { className: string }) {
       <span className="h-1 w-1 rounded-full bg-muted/60" />
       <span className="h-px flex-1 bg-muted/40" />
     </div>
+  );
+}
+
+function ShieldIcon() {
+  return (
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      className="shrink-0 text-accent"
+      aria-hidden="true"
+    >
+      <path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3z" />
+      <path d="M9 12l2 2 4-4" />
+    </svg>
   );
 }
