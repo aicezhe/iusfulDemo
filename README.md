@@ -5,6 +5,8 @@ Flusso guidato di caricamento documenti per l'avvio di una pratica legale, proge
 **Demo live:** https://iusful-demo-0907.vercel.app
 **Repository:** https://github.com/aicezhe/iusfulDemo
 
+Ho scelto di seguire lo stile visivo esistente di Iusful — colori, tipografia, tono — invece di inventarne uno nuovo, per dimostrare che il componente si integrerebbe naturalmente nel prodotto reale, non come esercizio isolato. Le decisioni di prodotto e UX (struttura del flusso, testi, gestione degli errori, architettura dello stato, scelte di sicurezza) sono mie, elaborate a partire da un'analisi diretta del prodotto esistente.
+
 ---
 
 ## Il problema
@@ -213,9 +215,3 @@ Queste metriche insieme dicono non solo *dove* ci si blocca, ma *perché*: un dr
 Ho iniziato disegnando gli schermi a mano su iPad — struttura, gerarchia delle informazioni, punti di attrito da anticipare — prima di aprire l'editor. Le correzioni fini (spaziature, dettagli di layout, coerenza tra le schermate) sono arrivate dopo, direttamente sull'implementazione, confrontando ogni volta il risultato con l'intenzione originale dello schizzo.
 
 Per l'implementazione ho usato Claude Code come assistente di sviluppo — per accelerare la scrittura di boilerplate e la messa a punto tecnica. Le decisioni di prodotto, il flusso, i testi, la gerarchia visiva, la gestione degli errori e le scelte di sicurezza restano mie: l'ho usato per scrivere codice più in fretta, non per pensare al posto mio. Ogni componente generato è stato letto, capito e corretto quando necessario, non semplicemente accettato.
-
----
-
-## Nota finale
-
-Ho scelto di seguire lo stile visivo esistente di Iusful — colori, tipografia, tono — invece di inventarne uno nuovo, per dimostrare che il componente si integrerebbe naturalmente nel prodotto reale, non come esercizio isolato. Le decisioni di prodotto e UX (struttura del flusso, testi, gestione degli errori, architettura dello stato, scelte di sicurezza) sono mie, elaborate a partire da un'analisi diretta del prodotto esistente.
