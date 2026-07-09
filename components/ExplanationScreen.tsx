@@ -16,19 +16,19 @@ export default function ExplanationScreen({ onContinue }: ExplanationScreenProps
           non serve sapere nulla di legale.
         </h1>
 
-        <p className="mt-6 max-w-xs text-base leading-relaxed text-muted sm:mt-8 sm:max-w-sm sm:text-lg">
+        <button
+          type="button"
+          onClick={onContinue}
+          className="mt-6 rounded-full bg-dark px-10 py-3 text-base font-semibold text-text-light shadow-sm transition-colors hover:bg-dark/90 sm:mt-8 sm:px-14"
+        >
+          Vai al caricamento documenti
+        </button>
+
+        <p className="mt-10 max-w-xs text-base leading-relaxed text-muted sm:mt-12 sm:max-w-sm sm:text-lg">
           Per iniziare la tua pratica,
           <br />
           ci servono solo 2 documenti.
         </p>
-
-        <button
-          type="button"
-          onClick={onContinue}
-          className="mt-10 rounded-full bg-dark px-10 py-3 text-base font-semibold text-text-light shadow-sm transition-colors hover:bg-dark/90 sm:mt-12 sm:px-14"
-        >
-          Vai al caricamento documenti
-        </button>
       </div>
 
       <FullWidthDivider className="bottom-12" />
