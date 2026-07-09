@@ -6,11 +6,15 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
-        // HTML pages: always revalidate so a returning visitor never gets an
-        // old page referencing JS chunks a newer deploy has removed.
+        // HTML pages: never let the browser keep a disk copy at all. Mobile
+        // Safari has a known bug mismatching cached vs. revalidated HTML for
+        // "no-cache" responses (confirmed here: reopening the same link
+        // breaks in normal browsing but not in Private Browsing, where no
+        // persistent disk cache exists) — "no-store" removes the ambiguity
+        // by forbidding any cache write in the first place.
         source: "/",
         headers: [
-          { key: "Cache-Control", value: "no-cache, must-revalidate" },
+          { key: "Cache-Control", value: "no-store" },
         ],
       },
       {
