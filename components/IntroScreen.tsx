@@ -4,17 +4,17 @@ type IntroScreenProps = {
 
 export default function IntroScreen({ onStart }: IntroScreenProps) {
   return (
-    <div className="animate-fade-in-up flex flex-1 flex-col items-center justify-center gap-8 px-6 py-16 text-center">
-      <LineDotDivider />
+    <div className="animate-fade-in-up relative flex flex-1 flex-col items-center justify-center gap-8 px-6 py-16 text-center">
+      <FullWidthDivider className="top-8" />
 
       <p className="font-serif text-lg tracking-wide text-dark">
         ius<span className="text-accent">·</span>ful
       </p>
 
-      <h1 className="max-w-xs font-serif text-3xl leading-snug text-text sm:max-w-sm sm:text-4xl">
-        <span className="text-accent">Due</span> documenti,
+      <h1 className="max-w-xs font-serif text-3xl leading-snug text-dark sm:max-w-sm sm:text-4xl">
+        Due <span className="text-accent">documenti</span>,
         <br />
-        <span className="text-accent">senza complicazioni.</span>
+        senza complicazioni.
       </h1>
 
       <div className="flex max-w-xs items-center gap-4 rounded-2xl border border-muted/30 bg-white/40 px-5 py-4 text-left sm:max-w-sm">
@@ -30,19 +30,22 @@ export default function IntroScreen({ onStart }: IntroScreenProps) {
       <button
         type="button"
         onClick={onStart}
-        className="rounded-full bg-accent px-10 py-3 font-sans text-base font-medium text-text-light transition-colors hover:bg-accent/90"
+        className="rounded-full bg-dark px-10 py-3 font-sans text-base font-medium text-text-light transition-colors hover:bg-dark/90"
       >
         Inizia
       </button>
 
-      <LineDotDivider />
+      <FullWidthDivider className="bottom-12" />
     </div>
   );
 }
 
-function LineDotDivider() {
+function FullWidthDivider({ className }: { className: string }) {
   return (
-    <div className="flex w-20 items-center gap-2" aria-hidden="true">
+    <div
+      className={`absolute inset-x-0 flex items-center gap-2 ${className}`}
+      aria-hidden="true"
+    >
       <span className="h-px flex-1 bg-muted/40" />
       <span className="h-1 w-1 rounded-full bg-muted/60" />
       <span className="h-px flex-1 bg-muted/40" />
