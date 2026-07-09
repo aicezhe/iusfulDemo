@@ -4,32 +4,26 @@ type IntroScreenProps = {
 
 export default function IntroScreen({ onStart }: IntroScreenProps) {
   return (
-    <div className="animate-fade-in-up flex flex-1 flex-col items-center justify-center gap-12 px-6 py-16 text-center">
+    <div className="animate-fade-in-up flex flex-1 flex-col items-center justify-center gap-8 px-6 py-16 text-center">
+      <LineDotDivider />
+
       <p className="font-serif text-lg tracking-wide text-dark">
         ius<span className="text-accent">·</span>ful
       </p>
 
-      <h1 className="max-w-xl font-serif text-3xl leading-snug text-text sm:text-4xl">
-        <span className="text-accent">Due</span> documenti,{" "}
+      <h1 className="max-w-xs font-serif text-3xl leading-snug text-text sm:max-w-sm sm:text-4xl">
+        <span className="text-accent">Due</span> documenti,
+        <br />
         <span className="text-accent">senza complicazioni.</span>
       </h1>
 
-      <div className="flex max-w-md items-center gap-3 rounded-2xl border border-muted/40 bg-white/40 px-5 py-4">
-        <svg
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.5"
-          className="shrink-0 text-dark"
-          aria-hidden="true"
-        >
-          <rect x="5" y="11" width="14" height="9" rx="2" />
-          <path d="M8 11V7a4 4 0 0 1 8 0v4" />
-        </svg>
+      <div className="flex max-w-xs items-center gap-4 rounded-2xl border border-muted/30 bg-white/40 px-5 py-4 text-left sm:max-w-sm">
+        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-accent/15">
+          <LockIcon />
+        </span>
         <p className="font-mono text-sm text-text">
-          I tuoi documenti sono trattati in modo sicuro e riservato.
+          I tuoi documenti sono trattati in modo{" "}
+          <span className="text-accent">sicuro e riservato</span>.
         </p>
       </div>
 
@@ -40,6 +34,36 @@ export default function IntroScreen({ onStart }: IntroScreenProps) {
       >
         Inizia
       </button>
+
+      <LineDotDivider />
     </div>
+  );
+}
+
+function LineDotDivider() {
+  return (
+    <div className="flex w-20 items-center gap-2" aria-hidden="true">
+      <span className="h-px flex-1 bg-muted/40" />
+      <span className="h-1 w-1 rounded-full bg-muted/60" />
+      <span className="h-px flex-1 bg-muted/40" />
+    </div>
+  );
+}
+
+function LockIcon() {
+  return (
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      className="text-accent"
+      aria-hidden="true"
+    >
+      <rect x="5" y="11" width="14" height="9" rx="2" />
+      <path d="M8 11V7a4 4 0 0 1 8 0v4" />
+    </svg>
   );
 }
