@@ -10,11 +10,11 @@ export default function IntroScreen({ onStart }: IntroScreenProps) {
       <FullWidthDivider className="top-8" />
 
       <div className="flex -translate-y-[6%] flex-col items-center gap-8">
-        <p className="font-serif text-lg tracking-wide text-dark">
+        <p className="font-serif text-lg font-medium tracking-wide text-dark">
           ius<span className="text-accent">·</span>ful
         </p>
 
-        <h1 className="max-w-xs font-serif text-3xl leading-snug text-dark sm:max-w-sm sm:text-4xl">
+        <h1 className="max-w-xs font-serif text-3xl font-medium leading-snug text-dark sm:max-w-sm sm:text-4xl">
           Due documenti,
           <br />
           <span className="italic text-accent">senza complicazioni.</span>
@@ -40,7 +40,7 @@ export default function IntroScreen({ onStart }: IntroScreenProps) {
         <button
           type="button"
           onClick={onStart}
-          className="w-[85%] rounded-full bg-dark px-10 py-3 text-base font-medium text-text-light shadow-sm transition-colors hover:bg-dark/90 sm:w-auto sm:px-14"
+          className="w-[85%] rounded-full bg-dark px-10 py-3 text-base font-semibold text-text-light shadow-sm transition-colors hover:bg-dark/90 sm:w-auto sm:px-14"
         >
           Inizia
         </button>

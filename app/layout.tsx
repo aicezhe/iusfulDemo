@@ -5,6 +5,7 @@ import "./globals.css";
 const lora = Lora({
   variable: "--font-lora",
   subsets: ["latin"],
+  style: ["normal", "italic"],
 });
 
 const jetBrainsMono = JetBrains_Mono({

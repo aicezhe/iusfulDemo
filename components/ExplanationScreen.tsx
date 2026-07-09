@@ -11,7 +11,7 @@ export default function ExplanationScreen({ onContinue }: ExplanationScreenProps
 
       <div className="flex -translate-y-[6%] flex-col items-center">
         <h1 className="max-w-xs font-serif text-xl leading-snug text-dark sm:max-w-2xl sm:text-4xl">
-          Ti guidiamo <span className="text-accent">passo dopo passo</span>
+          Ti guidiamo <span className="italic text-accent">passo dopo passo</span>
           <br />
           non serve sapere
           <br />
