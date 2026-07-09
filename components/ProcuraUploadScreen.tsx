@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
+import CompletionOverlay from "./CompletionOverlay";
 import FileUploadSlot from "./FileUploadSlot";
 import NavArrows from "./NavArrows";
 import StepIndicator from "./StepIndicator";
@@ -19,7 +20,6 @@ const MODULO_STORAGE_KEY = "procura-modulo";
 const DOWNLOAD_STORAGE_KEY = "procura-downloaded";
 const VERIFICATION_DELAY_MS = 2000;
 const DOWNLOAD_CONFIRMATION_MS = 800;
-const CONTINUE_TRANSITION_MS = 1400;
 
 const EMPTY_STATE: DocumentState = {
   status: "empty",
@@ -31,11 +31,10 @@ const EMPTY_STATE: DocumentState = {
 type VerificationPhase = "idle" | "verifying" | "received";
 
 type ProcuraUploadScreenProps = {
-  onContinue: () => void;
   onBack: () => void;
 };
 
-export default function ProcuraUploadScreen({ onContinue, onBack }: ProcuraUploadScreenProps) {
+export default function ProcuraUploadScreen({ onBack }: ProcuraUploadScreenProps) {
   const [hasDownloaded, setHasDownloaded] = useState(false);
   const [showDownloadConfirmation, setShowDownloadConfirmation] = useState(false);
   const [documentState, setDocumentState] = useState<DocumentState>(EMPTY_STATE);
@@ -43,7 +42,7 @@ export default function ProcuraUploadScreen({ onContinue, onBack }: ProcuraUploa
   const [verificationPhase, setVerificationPhase] = useState<VerificationPhase>("idle");
   const [showUploadHint, setShowUploadHint] = useState(false);
   const [showContinueHint, setShowContinueHint] = useState(false);
-  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [showCompletion, setShowCompletion] = useState(false);
 
   // Every wizard screen now stays mounted for the whole session (see
   // UploadWizard), including during the initial server-rendered pass — so
@@ -119,22 +118,24 @@ export default function ProcuraUploadScreen({ onContinue, onBack }: ProcuraUploa
   };
 
   const handleContinueClick = () => {
-    if (isTransitioning) return;
+    if (showCompletion) return;
 
     if (!isReadyToContinue) {
       setShowContinueHint(true);
       return;
     }
 
-    setIsTransitioning(true);
-    setTimeout(onContinue, CONTINUE_TRANSITION_MS);
+    // This is the last step of the wizard — there is no next screen. The
+    // completion overlay is the culmination: it stays until dismissed and
+    // then reveals the finished page underneath.
+    setShowCompletion(true);
   };
 
   return (
     <div className="animate-fade-in-up relative flex flex-1 flex-col items-center justify-center px-6 py-16 text-center">
       <NavArrows onBack={onBack} onForward={handleContinueClick} />
       {showDownloadConfirmation && <SuccessOverlay message="Scaricato ✓" />}
-      {isTransitioning && <SuccessOverlay message="Tutto corretto, grazie!" />}
+      {showCompletion && <CompletionOverlay onDismiss={() => setShowCompletion(false)} />}
 
       <div className="flex w-full max-w-md flex-col items-center gap-8 sm:max-w-lg">
         <div className="flex flex-col items-center gap-3">

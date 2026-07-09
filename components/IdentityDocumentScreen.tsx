@@ -14,7 +14,9 @@ import type { DocumentState } from "@/types/upload";
 const ACCEPTED_TYPES = ["image/jpeg", "application/pdf"];
 const ACCEPTED_TYPES_ATTR = ACCEPTED_TYPES.join(",");
 const MAX_SIZE_MB = 5;
-const TRANSITION_DELAY_MS = 1400;
+// Matches the intermediate SuccessOverlay animation (see globals.css) so the
+// screen advances exactly as the quick checkpoint flash fades out.
+const TRANSITION_DELAY_MS = 800;
 
 const FRONT_STORAGE_KEY = "identity-front";
 const BACK_STORAGE_KEY = "identity-back";

@@ -43,14 +43,17 @@ body {
   animation: fade-in-up 400ms ease-out both;
 }
 
+/* Intermediate checkpoint confirmation (e.g. "Tutto corretto, grazie!"):
+   a quick, modest full-screen darken that flashes in and out. Kept short
+   on purpose so the final completion screen reads as the weightier moment. */
 @keyframes success-overlay {
   0% {
     opacity: 0;
   }
-  15% {
+  25% {
     opacity: 1;
   }
-  85% {
+  75% {
     opacity: 1;
   }
   100% {
@@ -59,5 +62,60 @@ body {
 }
 
 .animate-success-overlay {
-  animation: success-overlay 1400ms ease-in-out both;
+  animation: success-overlay 800ms ease-in-out both;
+}
+
+/* Final completion backdrop: a slower, three-phase darken — settle, a small
+   brightening "breath", then the full darken it holds at. ease-in-out, no
+   flashing. Ends at 0.85 and stays there (both) until the card is dismissed. */
+@keyframes completion-backdrop {
+  0% {
+    opacity: 0;
+  }
+  35% {
+    opacity: 0.3;
+  }
+  60% {
+    opacity: 0.15;
+  }
+  100% {
+    opacity: 0.85;
+  }
+}
+
+.animate-completion-backdrop {
+  animation: completion-backdrop 1400ms ease-in-out both;
+}
+
+/* The completion card arrives after the backdrop has settled (1.4s delay),
+   fading in and easing up from 95% to full size. */
+@keyframes completion-card {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-completion-card {
+  animation: completion-card 500ms ease-in-out 1400ms both;
+}
+
+/* The "Un attimo…" hint shown only while the backdrop animates; it fades out
+   just as the card begins to appear. */
+@keyframes completion-hint {
+  0%,
+  55% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.animate-completion-hint {
+  animation: completion-hint 1400ms ease-in-out both;
 }
