@@ -17,7 +17,7 @@ export default function IntroScreen({ onStart }: IntroScreenProps) {
         <h1 className="max-w-xs font-serif text-3xl leading-snug text-dark sm:max-w-sm sm:text-4xl">
           Due documenti,
           <br />
-          <span className="text-accent">senza complicazioni.</span>
+          <span className="italic text-accent">senza complicazioni.</span>
         </h1>
 
         <div className="relative w-full max-w-xs overflow-hidden rounded-2xl border-t border-b border-dark/15 bg-dark/[0.06] px-5 py-4 shadow-sm sm:max-w-sm">
