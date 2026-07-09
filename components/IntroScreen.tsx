@@ -18,9 +18,12 @@ export default function IntroScreen({ onStart }: IntroScreenProps) {
       </h1>
 
       <div className="-mx-6 flex w-[calc(100%+3rem)] flex-col items-center bg-white/30 px-6 py-10">
-        <p className="max-w-xs font-mono text-sm text-text sm:max-w-sm">
-          I tuoi documenti sono trattati in modo{" "}
-          <span className="text-accent">sicuro e riservato</span>.
+        <p className="max-w-xs font-mono text-sm leading-relaxed tracking-wide sm:max-w-sm">
+          <span className="text-text/50">I tuoi documenti sono trattati</span>
+          <br />
+          <span className="text-text/50">in modo </span>
+          <span className="font-semibold text-accent">sicuro e riservato</span>
+          <span className="text-text/50">.</span>
         </p>
       </div>
 
