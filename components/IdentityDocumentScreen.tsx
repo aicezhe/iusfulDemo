@@ -1,6 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import AiProcessingStatus, {
+  AI_PROCESSING_DURATION_MS,
+  type AiPhase,
+} from "./AiProcessingStatus";
 import DocumentTypeCycler from "./DocumentTypeCycler";
 import FileUploadSlot from "./FileUploadSlot";
 import NavArrows from "./NavArrows";
@@ -43,6 +47,7 @@ export default function IdentityDocumentScreen({
   const [backPreviouslyUploaded, setBackPreviouslyUploaded] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [showHint, setShowHint] = useState(false);
+  const [verificationPhase, setVerificationPhase] = useState<AiPhase>("idle");
 
   // Every wizard screen now stays mounted for the whole session (see
   // UploadWizard), including during the initial server-rendered pass — so
@@ -59,6 +64,21 @@ export default function IdentityDocumentScreen({
 
   const bothUploaded =
     frontState.status === "success" && backState.status === "success";
+
+  // Once both sides are uploaded, run the AI-check imitation before enabling
+  // the continue button — identical to the Procura screen.
+  useEffect(() => {
+    if (!bothUploaded) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setVerificationPhase("idle");
+      return;
+    }
+    setVerificationPhase("processing");
+    const timer = setTimeout(() => setVerificationPhase("done"), AI_PROCESSING_DURATION_MS);
+    return () => clearTimeout(timer);
+  }, [bothUploaded]);
+
+  const isReadyToContinue = verificationPhase === "done";
 
   const handleFileSelect =
     (setState: (state: DocumentState) => void, storageKey: string) =>
@@ -100,8 +120,8 @@ export default function IdentityDocumentScreen({
   const handleButtonClick = () => {
     if (isTransitioning) return;
 
-    if (!bothUploaded) {
-      setShowHint(true);
+    if (!isReadyToContinue) {
+      if (!bothUploaded) setShowHint(true);
       return;
     }
 
@@ -148,15 +168,17 @@ export default function IdentityDocumentScreen({
           />
         </div>
 
+        {verificationPhase !== "idle" && <AiProcessingStatus phase={verificationPhase} />}
+
         <div className="flex flex-col items-center gap-2">
           <button
             type="button"
             onClick={handleButtonClick}
             onMouseEnter={() => !bothUploaded && setShowHint(true)}
             onMouseLeave={() => setShowHint(false)}
-            aria-disabled={!bothUploaded}
+            aria-disabled={!isReadyToContinue}
             className={`flex w-[85%] items-center justify-center rounded-full px-10 py-3 text-base font-semibold leading-none shadow-sm transition-colors sm:w-auto sm:px-14 ${
-              bothUploaded
+              isReadyToContinue
                 ? "bg-dark text-text-light hover:bg-dark/90"
                 : "cursor-not-allowed bg-dark/40 text-text-light"
             }`}

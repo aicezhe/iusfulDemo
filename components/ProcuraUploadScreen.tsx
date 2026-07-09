@@ -2,6 +2,10 @@
 
 import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
+import AiProcessingStatus, {
+  AI_PROCESSING_DURATION_MS,
+  type AiPhase,
+} from "./AiProcessingStatus";
 import CompletionOverlay from "./CompletionOverlay";
 import FileUploadSlot from "./FileUploadSlot";
 import NavArrows from "./NavArrows";
@@ -21,7 +25,6 @@ const MAX_SIZE_MB = 5;
 const MODULO_FILE_PATH = "/procura-alle-liti.pdf";
 const MODULO_STORAGE_KEY = "procura-modulo";
 const DOWNLOAD_STORAGE_KEY = "procura-downloaded";
-const VERIFICATION_DELAY_MS = 2000;
 const DOWNLOAD_CONFIRMATION_MS = 800;
 
 const EMPTY_STATE: DocumentState = {
@@ -30,8 +33,6 @@ const EMPTY_STATE: DocumentState = {
   errorMessage: null,
   errorType: null,
 };
-
-type VerificationPhase = "idle" | "verifying" | "received";
 
 type StepStatus = "upcoming" | "active" | "completed";
 
@@ -44,7 +45,7 @@ export default function ProcuraUploadScreen({ onBack }: ProcuraUploadScreenProps
   const [showDownloadConfirmation, setShowDownloadConfirmation] = useState(false);
   const [documentState, setDocumentState] = useState<DocumentState>(EMPTY_STATE);
   const [previouslyUploaded, setPreviouslyUploaded] = useState(false);
-  const [verificationPhase, setVerificationPhase] = useState<VerificationPhase>("idle");
+  const [verificationPhase, setVerificationPhase] = useState<AiPhase>("idle");
   const [showUploadHint, setShowUploadHint] = useState(false);
   const [showContinueHint, setShowContinueHint] = useState(false);
   const [showCompletion, setShowCompletion] = useState(false);
@@ -60,7 +61,7 @@ export default function ProcuraUploadScreen({ onBack }: ProcuraUploadScreenProps
   }, []);
   /* eslint-enable react-hooks/set-state-in-effect */
 
-  const isReadyToContinue = verificationPhase === "received";
+  const isReadyToContinue = verificationPhase === "done";
 
   // Three-state progress for the sub-steps, derived from real progress so it
   // can never drift out of sync: a step is "completed" once its work is done,
@@ -68,7 +69,7 @@ export default function ProcuraUploadScreen({ onBack }: ProcuraUploadScreenProps
   const stepCompletion = [
     hasDownloaded,
     documentState.status === "loading" || documentState.status === "success",
-    verificationPhase === "received",
+    verificationPhase === "done",
   ];
   const activeStepIndex = stepCompletion.findIndex((done) => !done);
   const stepStatusFor = (index: number): StepStatus => {
@@ -114,8 +115,8 @@ export default function ProcuraUploadScreen({ onBack }: ProcuraUploadScreenProps
           errorType: null,
         });
         saveDocumentStatus(MODULO_STORAGE_KEY, "success");
-        setVerificationPhase("verifying");
-        setTimeout(() => setVerificationPhase("received"), VERIFICATION_DELAY_MS);
+        setVerificationPhase("processing");
+        setTimeout(() => setVerificationPhase("done"), AI_PROCESSING_DURATION_MS);
       })
       .catch((error: Error) =>
         setDocumentState({
@@ -232,15 +233,10 @@ export default function ProcuraUploadScreen({ onBack }: ProcuraUploadScreenProps
                 </p>
               )}
 
-              {verificationPhase === "verifying" && (
-                <p className="mt-2 flex items-center justify-center gap-2 text-sm text-muted">
-                  <Spinner />
-                  Verifica in corso...
-                </p>
-              )}
-
-              {verificationPhase === "received" && (
-                <p className="mt-2 text-sm font-semibold text-dark">✓ Documento ricevuto</p>
+              {verificationPhase !== "idle" && (
+                <div className="mt-2">
+                  <AiProcessingStatus phase={verificationPhase} />
+                </div>
               )}
             </div>
           </StepRow>
@@ -338,14 +334,5 @@ function CheckIcon() {
     >
       <path d="M5 12.5l4.5 4.5L19 7" />
     </svg>
-  );
-}
-
-function Spinner() {
-  return (
-    <span
-      className="h-3 w-3 animate-spin rounded-full border-2 border-muted/40 border-t-dark"
-      aria-hidden="true"
-    />
   );
 }
