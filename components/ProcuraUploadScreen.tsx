@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import type { ReactNode } from "react";
-import BackButton from "./BackButton";
 import FileUploadSlot from "./FileUploadSlot";
+import NavArrows from "./NavArrows";
 import StepIndicator from "./StepIndicator";
 import SuccessOverlay from "./SuccessOverlay";
 import { validateFile } from "@/lib/fileValidation";
@@ -111,7 +111,7 @@ export default function ProcuraUploadScreen({ onContinue, onBack }: ProcuraUploa
 
   return (
     <div className="animate-fade-in-up relative flex flex-1 flex-col items-center justify-center px-6 py-16 text-center">
-      <BackButton onBack={onBack} />
+      <NavArrows onBack={onBack} onForward={handleContinueClick} />
       {showDownloadConfirmation && <SuccessOverlay message="Scaricato ✓" />}
       {isTransitioning && <SuccessOverlay message="Tutto corretto, grazie!" />}
 

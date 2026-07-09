@@ -1,5 +1,5 @@
-import BackButton from "./BackButton";
 import FullWidthDivider from "./FullWidthDivider";
+import NavArrows from "./NavArrows";
 import StepIndicator from "./StepIndicator";
 
 type ProcuraExplanationScreenProps = {
@@ -13,8 +13,8 @@ export default function ProcuraExplanationScreen({
 }: ProcuraExplanationScreenProps) {
   return (
     <div className="animate-fade-in-up relative flex flex-1 flex-col items-center justify-center px-6 py-16 text-center">
-      <BackButton onBack={onBack} />
-      <FullWidthDivider className="top-8" />
+      <NavArrows onBack={onBack} onForward={onContinue} />
+      <FullWidthDivider className="top-14" />
 
       <div className="flex -translate-y-[6%] flex-col items-center gap-4">
         <StepIndicator totalSteps={2} currentStep={2} />

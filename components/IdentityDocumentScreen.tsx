@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import BackButton from "./BackButton";
 import DocumentTypeCycler from "./DocumentTypeCycler";
 import FileUploadSlot from "./FileUploadSlot";
+import NavArrows from "./NavArrows";
 import StepIndicator from "./StepIndicator";
 import SuccessOverlay from "./SuccessOverlay";
 import { validateFile } from "@/lib/fileValidation";
@@ -100,7 +100,7 @@ export default function IdentityDocumentScreen({
 
   return (
     <div className="animate-fade-in-up relative flex flex-1 flex-col items-center justify-center px-6 py-16 text-center">
-      <BackButton onBack={onBack} />
+      <NavArrows onBack={onBack} onForward={handleButtonClick} />
       {isTransitioning && <SuccessOverlay message="Tutto corretto, grazie!" />}
 
       <div className="flex w-full max-w-md flex-col items-center gap-8 sm:max-w-lg">

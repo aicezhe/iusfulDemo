@@ -1,5 +1,5 @@
-import BackButton from "./BackButton";
 import FullWidthDivider from "./FullWidthDivider";
+import NavArrows from "./NavArrows";
 
 type ExplanationScreenProps = {
   onContinue: () => void;
@@ -9,8 +9,8 @@ type ExplanationScreenProps = {
 export default function ExplanationScreen({ onContinue, onBack }: ExplanationScreenProps) {
   return (
     <div className="animate-fade-in-up relative flex flex-1 flex-col items-center justify-center px-6 py-16 text-center">
-      <BackButton onBack={onBack} />
-      <FullWidthDivider className="top-8" />
+      <NavArrows onBack={onBack} onForward={onContinue} />
+      <FullWidthDivider className="top-14" />
 
       <div className="flex -translate-y-[6%] flex-col items-center">
         <h1 className="max-w-xs font-serif text-xl font-medium leading-snug text-dark sm:max-w-2xl sm:text-4xl">
@@ -27,10 +27,8 @@ export default function ExplanationScreen({ onContinue, onBack }: ExplanationScr
           Vai al caricamento documenti
         </button>
 
-        <p className="mt-10 max-w-xs text-base leading-relaxed text-muted sm:mt-12 sm:max-w-sm sm:text-lg">
-          Per iniziare la tua pratica,
-          <br />
-          ci servono solo 2 documenti.
+        <p className="mt-14 max-w-[320px] whitespace-nowrap text-xs text-muted sm:mt-16 sm:max-w-none sm:text-sm">
+          Per iniziare la tua pratica, ci servono solo 2 documenti.
         </p>
       </div>
 
