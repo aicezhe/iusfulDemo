@@ -13,6 +13,11 @@ trailer
 %%EOF
 `;
 
+// Mobile and some slower browsers need the link to stay in the DOM (and the
+// blob URL to stay valid) for a moment after the click, or the download is
+// silently dropped — revoking/removing it synchronously is a known race.
+const CLEANUP_DELAY_MS = 150;
+
 export function downloadDummyPdf(fileName: string): void {
   const blob = new Blob([DUMMY_PDF_CONTENT], { type: "application/pdf" });
   const url = URL.createObjectURL(blob);
@@ -20,9 +25,13 @@ export function downloadDummyPdf(fileName: string): void {
   const link = document.createElement("a");
   link.href = url;
   link.download = fileName;
+  link.rel = "noopener";
+  link.style.display = "none";
   document.body.appendChild(link);
   link.click();
-  document.body.removeChild(link);
 
-  URL.revokeObjectURL(url);
+  setTimeout(() => {
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }, CLEANUP_DELAY_MS);
 }
