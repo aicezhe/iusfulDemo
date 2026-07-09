@@ -30,14 +30,18 @@ const TRACK_ITEMS = [
 export default function DocumentTypeCycler() {
   const [position, setPosition] = useState(FIRST_INDEX);
   const [transitionEnabled, setTransitionEnabled] = useState(true);
-  const [reduceMotion, setReduceMotion] = useState(
-    () =>
-      typeof window !== "undefined" &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches,
-  );
+  // Must start `false` so the server and the client's first (hydration) render
+  // agree — this component is mounted from the very first render, so reading
+  // matchMedia in a lazy initializer would break hydration for users who have
+  // "reduce motion" enabled (server renders the wheel, client the static list).
+  // The real value is read after mount in the effect below.
+  const [reduceMotion, setReduceMotion] = useState(false);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setReduceMotion(mediaQuery.matches);
+
     const handleChange = (event: MediaQueryListEvent) =>
       setReduceMotion(event.matches);
 
