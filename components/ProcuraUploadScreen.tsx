@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import FileUploadSlot from "./FileUploadSlot";
 import NavArrows from "./NavArrows";
@@ -36,18 +36,27 @@ type ProcuraUploadScreenProps = {
 };
 
 export default function ProcuraUploadScreen({ onContinue, onBack }: ProcuraUploadScreenProps) {
-  const [hasDownloaded, setHasDownloaded] = useState(
-    () => readDocumentStatus(DOWNLOAD_STORAGE_KEY) === "done",
-  );
+  const [hasDownloaded, setHasDownloaded] = useState(false);
   const [showDownloadConfirmation, setShowDownloadConfirmation] = useState(false);
   const [documentState, setDocumentState] = useState<DocumentState>(EMPTY_STATE);
-  const [previouslyUploaded] = useState(
-    () => readDocumentStatus(MODULO_STORAGE_KEY) === "success",
-  );
+  const [previouslyUploaded, setPreviouslyUploaded] = useState(false);
   const [verificationPhase, setVerificationPhase] = useState<VerificationPhase>("idle");
   const [showUploadHint, setShowUploadHint] = useState(false);
   const [showContinueHint, setShowContinueHint] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
+
+  // Every wizard screen now stays mounted for the whole session (see
+  // UploadWizard), including during the initial server-rendered pass — so
+  // reading localStorage via a lazy useState initializer would mismatch the
+  // server's render (no localStorage there) and break hydration. Read it
+  // client-side after mount instead.
+  /* eslint-disable react-hooks/set-state-in-effect -- syncing from
+     localStorage, only available client-side; see comment above. */
+  useEffect(() => {
+    setHasDownloaded(readDocumentStatus(DOWNLOAD_STORAGE_KEY) === "done");
+    setPreviouslyUploaded(readDocumentStatus(MODULO_STORAGE_KEY) === "success");
+  }, []);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const isReadyToContinue = verificationPhase === "received";
   const isStep1Done = hasDownloaded;
@@ -158,6 +167,10 @@ export default function ProcuraUploadScreen({ onContinue, onBack }: ProcuraUploa
             >
               {hasDownloaded ? "Scaricato ✓ — scarica di nuovo" : "Scarica il modulo"}
             </button>
+            <p className="mt-2 text-xs text-muted">
+              Si apre in una nuova scheda: da lì puoi salvarlo o stamparlo
+              (icona Condividi).
+            </p>
           </StepRow>
 
           <StepRow
@@ -171,7 +184,8 @@ export default function ProcuraUploadScreen({ onContinue, onBack }: ProcuraUploa
             isComplete={isStep2Done}
           >
             <p className="text-sm text-muted">
-              Stampa il modulo, firmalo a mano, poi torna su questa pagina per caricarlo.
+              Stampalo e firmalo a mano, oppure firma digitalmente il PDF
+              scaricato. Poi torna qui per caricarlo.
             </p>
           </StepRow>
 

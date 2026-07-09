@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import DocumentTypeCycler from "./DocumentTypeCycler";
 import FileUploadSlot from "./FileUploadSlot";
 import NavArrows from "./NavArrows";
@@ -37,14 +37,23 @@ export default function IdentityDocumentScreen({
 }: IdentityDocumentScreenProps) {
   const [frontState, setFrontState] = useState<DocumentState>(EMPTY_STATE);
   const [backState, setBackState] = useState<DocumentState>(EMPTY_STATE);
-  const [frontPreviouslyUploaded] = useState(
-    () => readDocumentStatus(FRONT_STORAGE_KEY) === "success",
-  );
-  const [backPreviouslyUploaded] = useState(
-    () => readDocumentStatus(BACK_STORAGE_KEY) === "success",
-  );
+  const [frontPreviouslyUploaded, setFrontPreviouslyUploaded] = useState(false);
+  const [backPreviouslyUploaded, setBackPreviouslyUploaded] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [showHint, setShowHint] = useState(false);
+
+  // Every wizard screen now stays mounted for the whole session (see
+  // UploadWizard), including during the initial server-rendered pass — so
+  // reading localStorage via a lazy useState initializer would mismatch the
+  // server's render (no localStorage there) and break hydration. Read it
+  // client-side after mount instead.
+  /* eslint-disable react-hooks/set-state-in-effect -- syncing from
+     localStorage, only available client-side; see comment above. */
+  useEffect(() => {
+    setFrontPreviouslyUploaded(readDocumentStatus(FRONT_STORAGE_KEY) === "success");
+    setBackPreviouslyUploaded(readDocumentStatus(BACK_STORAGE_KEY) === "success");
+  }, []);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const bothUploaded =
     frontState.status === "success" && backState.status === "success";
