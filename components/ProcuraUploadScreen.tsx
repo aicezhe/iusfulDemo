@@ -43,6 +43,9 @@ export default function ProcuraUploadScreen({ onContinue }: ProcuraUploadScreenP
   const [showContinueHint, setShowContinueHint] = useState(false);
 
   const isReadyToContinue = verificationPhase === "received";
+  const isStep1Done = hasDownloaded;
+  const isStep2Done = documentState.status === "success";
+  const isStep3Done = verificationPhase === "received";
 
   const handleDownloadClick = () => {
     downloadDummyPdf("procura-alle-liti.pdf");
@@ -110,15 +113,9 @@ export default function ProcuraUploadScreen({ onContinue }: ProcuraUploadScreenP
           </h1>
 
           <div className="flex items-center gap-2" aria-hidden="true">
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-dark text-xs font-medium text-text-light">
-              1
-            </span>
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-dark text-xs font-medium text-text-light">
-              2
-            </span>
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-dark text-xs font-medium text-text-light">
-              3
-            </span>
+            <StepBadge number={1} done={isStep1Done} />
+            <StepBadge number={2} done={isStep2Done} />
+            <StepBadge number={3} done={isStep3Done} />
           </div>
 
           <p className="max-w-sm text-sm text-muted">
@@ -127,7 +124,7 @@ export default function ProcuraUploadScreen({ onContinue }: ProcuraUploadScreenP
         </div>
 
         <div className="flex w-full flex-col items-center gap-6">
-          <StepRow label="Scarica il modulo">
+          <StepRow label="Scarica il modulo" isComplete={isStep1Done}>
             <button
               type="button"
               onClick={handleDownloadClick}
@@ -141,13 +138,13 @@ export default function ProcuraUploadScreen({ onContinue }: ProcuraUploadScreenP
             </button>
           </StepRow>
 
-          <StepRow label="Firmalo, poi torna qui">
+          <StepRow label="Firmalo, poi torna qui" isComplete={isStep2Done}>
             <p className="text-sm text-muted">
               Stampa il modulo, firmalo a mano, poi torna su questa pagina per caricarlo.
             </p>
           </StepRow>
 
-          <StepRow label="Carica il modulo firmato">
+          <StepRow label="Carica il modulo firmato" isComplete={isStep3Done}>
             <div className="w-full">
               {documentState.status === "empty" && (
                 <p className="mb-2 text-xs text-muted">
@@ -224,15 +221,54 @@ export default function ProcuraUploadScreen({ onContinue }: ProcuraUploadScreenP
 
 type StepRowProps = {
   label: string;
+  isComplete: boolean;
   children: ReactNode;
 };
 
-function StepRow({ label, children }: StepRowProps) {
+function StepRow({ label, isComplete, children }: StepRowProps) {
   return (
     <div className="flex w-full flex-col items-center gap-3">
-      <span className="text-sm font-medium text-dark">{label}</span>
+      <span
+        className={`flex items-center gap-1.5 text-sm font-medium ${
+          isComplete ? "text-dark" : "text-dark/70"
+        }`}
+      >
+        {isComplete && <CheckIcon />}
+        {label}
+      </span>
       {children}
     </div>
+  );
+}
+
+function StepBadge({ number, done }: { number: number; done: boolean }) {
+  return (
+    <span
+      className={
+        done
+          ? "flex h-6 w-6 items-center justify-center rounded-full bg-dark text-xs font-medium text-text-light"
+          : "flex h-6 w-6 items-center justify-center rounded-full border-2 border-dark/30 text-xs font-medium text-dark/50"
+      }
+    >
+      {number}
+    </span>
+  );
+}
+
+function CheckIcon() {
+  return (
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      className="shrink-0 text-dark"
+      aria-hidden="true"
+    >
+      <path d="M5 12.5l4.5 4.5L19 7" />
+    </svg>
   );
 }
 
