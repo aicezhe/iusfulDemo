@@ -26,11 +26,12 @@ export function downloadDummyPdf(fileName: string): void {
   link.href = url;
   link.download = fileName;
   link.rel = "noopener";
-  // Desktop browsers honour `download` and save the file directly. iOS Safari
-  // ignores `download` for blobs, so `target="_blank"` opens the PDF in a new
-  // tab (where the user can save it via Share) without navigating our own tab
-  // away and losing wizard state.
-  link.target = "_blank";
+  // No target="_blank" here: a programmatically-clicked link opening a new
+  // tab can get silently popup-blocked on mobile Safari (nothing happens at
+  // all — worse than navigating away). Desktop browsers honour `download`
+  // and save the file directly in place. iOS Safari instead navigates to
+  // its built-in PDF viewer in the same tab; the user can save it from there
+  // via Share, and going back restores the wizard from localStorage.
   link.style.display = "none";
   document.body.appendChild(link);
   link.click();

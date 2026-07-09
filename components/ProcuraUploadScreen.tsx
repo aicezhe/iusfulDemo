@@ -168,8 +168,8 @@ export default function ProcuraUploadScreen({ onContinue, onBack }: ProcuraUploa
               {hasDownloaded ? "Scaricato ✓ — scarica di nuovo" : "Scarica il modulo"}
             </button>
             <p className="mt-2 text-xs text-muted">
-              Si apre in una nuova scheda: da lì puoi salvarlo o stamparlo
-              (icona Condividi).
+              Il modulo si apre nel browser: salvalo con l&apos;icona
+              Condividi, poi torna indietro per caricarlo qui.
             </p>
           </StepRow>
 
