@@ -52,3 +52,14 @@ dispositivo. Se l'utente chiude la scheda e torna, vede un indicatore "caricato 
 precedenza" ma deve ricaricare il file per procedere davvero. In produzione, con un
 backend reale, salverei lo stato progressivamente sul server ad ogni step, permettendo
 il ripristino da qualsiasi dispositivo.
+
+## Come testare i diversi stati
+
+Nella cartella `test-files/` del repository trovi file pronti per testare ogni stato:
+
+- `documento-formato-errato.txt` → attiva l'errore di formato non valido
+- `documento-troppo-grande.pdf` (~6MB) → attiva l'errore di dimensione
+- `documento-vuoto.pdf` (0 byte) → attiva l'errore di file danneggiato
+- `test-error.pdf` → attiva l'errore di rete in modo deterministico (per demo —
+  normalmente è casuale, ~10% delle volte)
+- `documento-valido.pdf` → carica con successo, per vedere lo stato Successo

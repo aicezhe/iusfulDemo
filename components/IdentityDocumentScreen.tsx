@@ -3,6 +3,7 @@
 import { useState } from "react";
 import DocumentTypeCycler from "./DocumentTypeCycler";
 import FileUploadSlot from "./FileUploadSlot";
+import StepIndicator from "./StepIndicator";
 import SuccessOverlay from "./SuccessOverlay";
 import { validateFile } from "@/lib/fileValidation";
 import { simulateUpload } from "@/lib/simulateUpload";
@@ -111,6 +112,7 @@ export default function IdentityDocumentScreen({
             <h1 className="font-serif text-3xl leading-snug text-dark sm:text-4xl">
               Documento d&apos;identità
             </h1>
+            <StepIndicator totalSteps={2} currentStep={1} />
             <p className="max-w-sm text-sm text-muted">
               Il documento d&apos;identità è un documento ufficiale che
               dimostra chi sei. Ci serve per verificare in modo sicuro chi

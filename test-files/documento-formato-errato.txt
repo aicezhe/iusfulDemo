@@ -1,0 +1,2 @@
+Questo è un file di testo, non un PDF o una foto JPEG.
+Usalo per testare l'errore "formato non valido" nel wizard di caricamento.
