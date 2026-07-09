@@ -9,8 +9,8 @@ export default function ExplanationScreen({ onContinue }: ExplanationScreenProps
     <div className="animate-fade-in-up relative flex flex-1 flex-col items-center justify-center px-6 py-16 text-center">
       <FullWidthDivider className="top-8" />
 
-      <div className="flex -translate-y-[6%] flex-col items-center gap-8">
-        <h1 className="max-w-xs font-serif text-xl leading-snug text-dark sm:max-w-lg sm:text-4xl">
+      <div className="flex -translate-y-[6%] flex-col items-center">
+        <h1 className="max-w-xs font-serif text-xl leading-snug text-dark sm:max-w-2xl sm:text-4xl">
           Ti guidiamo <span className="text-accent">passo dopo passo</span>
           <br />
           non serve sapere
@@ -18,17 +18,16 @@ export default function ExplanationScreen({ onContinue }: ExplanationScreenProps
           nulla di legale.
         </h1>
 
-        <p className="max-w-xs text-lg leading-relaxed text-dark/70 sm:max-w-sm">
+        <p className="mt-6 max-w-xs text-base leading-relaxed text-muted sm:mt-8 sm:max-w-sm sm:text-lg">
           Per iniziare la tua pratica,
           <br />
-          ci servono solo{" "}
-          <span className="font-medium text-accent">2 documenti.</span>
+          ci servono solo 2 documenti.
         </p>
 
         <button
           type="button"
           onClick={onContinue}
-          className="w-[85%] rounded-full bg-dark px-10 py-3 text-base font-medium text-text-light shadow-sm transition-colors hover:bg-dark/90 sm:w-auto sm:px-14"
+          className="mt-10 rounded-full bg-dark px-10 py-3 text-base font-medium text-text-light shadow-sm transition-colors hover:bg-dark/90 sm:mt-12 sm:px-14"
         >
           Vai al caricamento documenti
         </button>
