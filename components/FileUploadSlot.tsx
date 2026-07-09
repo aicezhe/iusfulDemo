@@ -92,7 +92,12 @@ export default function FileUploadSlot({
           ? "border-accent"
           : "border-muted/50";
 
-  const backgroundClass = status === "success" ? "bg-dark/[0.08]" : "bg-dark/[0.03]";
+  const backgroundClass =
+    status === "success"
+      ? "bg-dark/[0.08]"
+      : status === "error"
+        ? "bg-warning/[0.08]"
+        : "bg-dark/[0.03]";
 
   const canCompress = errorType === "too-large" && lastFile?.type === "image/jpeg";
 
@@ -155,7 +160,7 @@ export default function FileUploadSlot({
 
         {status === "error" && (
           <>
-            <WarningIcon />
+            <RetryIcon />
             <p className="text-sm text-warning">{errorMessage}</p>
 
             {canCompress && (
@@ -246,7 +251,7 @@ function CheckIcon() {
   );
 }
 
-function WarningIcon() {
+function RetryIcon() {
   return (
     <svg
       width="22"
@@ -258,9 +263,8 @@ function WarningIcon() {
       className="text-warning"
       aria-hidden="true"
     >
-      <path d="M12 9v4" />
-      <path d="M12 17h.01" />
-      <path d="M10.29 3.86l-8.18 14.18A1.5 1.5 0 0 0 3.4 20.3h17.2a1.5 1.5 0 0 0 1.29-2.26L13.71 3.86a1.5 1.5 0 0 0-2.42 0z" />
+      <path d="M3 12a9 9 0 1 1 3 6.7" />
+      <path d="M3 21v-5h5" />
     </svg>
   );
 }
