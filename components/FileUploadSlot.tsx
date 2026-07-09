@@ -56,7 +56,7 @@ export default function FileUploadSlot({
 
   return (
     <div className="flex flex-col gap-2">
-      <span className="font-mono text-xs uppercase tracking-wide text-muted">
+      <span className="text-xs font-medium uppercase tracking-wide text-muted">
         {label}
       </span>
 
@@ -64,7 +64,7 @@ export default function FileUploadSlot({
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
-        className={`flex flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed ${borderClass} bg-white/30 px-6 py-8 text-center transition-colors`}
+        className={`flex flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed ${borderClass} bg-dark/[0.03] px-6 py-8 text-center transition-colors`}
       >
         {status === "empty" && (
           <>
@@ -77,7 +77,7 @@ export default function FileUploadSlot({
             >
               Sfoglia
             </button>
-            <p className="font-mono text-xs text-muted">
+            <p className="text-xs text-muted">
               PDF, JPEG o PNG · Max {MAX_SIZE_MB}MB
             </p>
           </>
@@ -115,7 +115,7 @@ export default function FileUploadSlot({
             >
               Sfoglia
             </button>
-            <p className="font-mono text-xs text-muted">
+            <p className="text-xs text-muted">
               PDF, JPEG o PNG · Max {MAX_SIZE_MB}MB
             </p>
           </>

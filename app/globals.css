@@ -42,3 +42,22 @@ body {
 .animate-fade-in-up {
   animation: fade-in-up 400ms ease-out both;
 }
+
+@keyframes success-overlay {
+  0% {
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.animate-success-overlay {
+  animation: success-overlay 800ms ease-in-out both;
+}

@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { WizardStep } from "@/types/upload";
 import IntroScreen from "./IntroScreen";
 import ExplanationScreen from "./ExplanationScreen";
+import IdentityDocumentScreen from "./IdentityDocumentScreen";
 
 export default function UploadWizard() {
   const [currentStep, setCurrentStep] = useState<WizardStep>(1);
@@ -14,6 +15,7 @@ export default function UploadWizard() {
     <div className="flex min-h-screen flex-1 flex-col bg-bg">
       {currentStep === 1 && <IntroScreen onStart={goToNextStep} />}
       {currentStep === 2 && <ExplanationScreen onContinue={goToNextStep} />}
+      {currentStep === 3 && <IdentityDocumentScreen onContinue={goToNextStep} />}
     </div>
   );
 }
