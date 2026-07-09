@@ -8,7 +8,7 @@ export function simulateUpload(file: File): Promise<File> {
 
     setTimeout(() => {
       if (Math.random() < FAILURE_RATE) {
-        reject(new Error("Caricamento non riuscito. Riprova."));
+        reject(new Error("Il caricamento si è interrotto. Riprova."));
         return;
       }
       resolve(file);

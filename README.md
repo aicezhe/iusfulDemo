@@ -34,3 +34,21 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Scelte di design (Document Upload Wizard)
+
+**Compressione delle immagini lato client.** Quando una foto JPEG supera i 5MB, la demo
+non propone un servizio esterno di conversione: i documenti d'identità sono dati
+personali sensibili, e inviarli a un sito terzo non verificato contraddirebbe i valori
+di sicurezza dei dati che Iusful comunica ai propri utenti. Al loro posto, la
+compressione avviene interamente nel browser tramite Canvas API (`lib/compressImage.ts`):
+il file non lascia mai il dispositivo dell'utente. È una scelta più solida di un semplice
+link a un convertitore online, non una funzionalità mancante.
+
+**Persistenza dello stato con localStorage.** In questa demo uso `localStorage` per
+salvare solo lo *stato* di avanzamento di ogni caricamento (es. "success"), non il file
+stesso — i `File` non sono serializzabili e comunque non dovrebbero restare sul
+dispositivo. Se l'utente chiude la scheda e torna, vede un indicatore "caricato in
+precedenza" ma deve ricaricare il file per procedere davvero. In produzione, con un
+backend reale, salverei lo stato progressivamente sul server ad ogni step, permettendo
+il ripristino da qualsiasi dispositivo.

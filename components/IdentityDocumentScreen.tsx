@@ -6,16 +6,21 @@ import FileUploadSlot from "./FileUploadSlot";
 import SuccessOverlay from "./SuccessOverlay";
 import { validateFile } from "@/lib/fileValidation";
 import { simulateUpload } from "@/lib/simulateUpload";
+import { readDocumentStatus, saveDocumentStatus } from "@/lib/localStorage";
 import type { DocumentState } from "@/types/upload";
 
-const ACCEPTED_TYPES = ["image/jpeg", "image/png", "application/pdf"];
+const ACCEPTED_TYPES = ["image/jpeg", "application/pdf"];
 const ACCEPTED_TYPES_ATTR = ACCEPTED_TYPES.join(",");
 const MAX_SIZE_MB = 5;
+
+const FRONT_STORAGE_KEY = "identity-front";
+const BACK_STORAGE_KEY = "identity-back";
 
 const EMPTY_STATE: DocumentState = {
   status: "empty",
   fileName: null,
   errorMessage: null,
+  errorType: null,
 };
 
 type ConfirmPhase = "idle" | "overlay" | "confirmed";
@@ -29,6 +34,12 @@ export default function IdentityDocumentScreen({
 }: IdentityDocumentScreenProps) {
   const [frontState, setFrontState] = useState<DocumentState>(EMPTY_STATE);
   const [backState, setBackState] = useState<DocumentState>(EMPTY_STATE);
+  const [frontPreviouslyUploaded] = useState(
+    () => readDocumentStatus(FRONT_STORAGE_KEY) === "success",
+  );
+  const [backPreviouslyUploaded] = useState(
+    () => readDocumentStatus(BACK_STORAGE_KEY) === "success",
+  );
   const [phase, setPhase] = useState<ConfirmPhase>("idle");
   const [showHint, setShowHint] = useState(false);
 
@@ -37,26 +48,39 @@ export default function IdentityDocumentScreen({
   const isReady = bothUploaded || phase === "confirmed";
 
   const handleFileSelect =
-    (setState: (state: DocumentState) => void) => (file: File) => {
-      const { valid, errorMessage } = validateFile(
-        file,
-        MAX_SIZE_MB,
-        ACCEPTED_TYPES,
-      );
+    (setState: (state: DocumentState) => void, storageKey: string) =>
+    (file: File) => {
+      const result = validateFile(file, MAX_SIZE_MB, ACCEPTED_TYPES);
 
-      if (!valid) {
-        setState({ status: "error", fileName: null, errorMessage });
+      if (!result.valid) {
+        setState({
+          status: "error",
+          fileName: null,
+          errorMessage: result.errorMessage,
+          errorType: result.errorType,
+        });
         return;
       }
 
-      setState({ status: "loading", fileName: null, errorMessage: null });
+      setState({ status: "loading", fileName: null, errorMessage: null, errorType: null });
 
       simulateUpload(file)
-        .then(() =>
-          setState({ status: "success", fileName: file.name, errorMessage: null }),
-        )
+        .then(() => {
+          setState({
+            status: "success",
+            fileName: file.name,
+            errorMessage: null,
+            errorType: null,
+          });
+          saveDocumentStatus(storageKey, "success");
+        })
         .catch((error: Error) =>
-          setState({ status: "error", fileName: null, errorMessage: error.message }),
+          setState({
+            status: "error",
+            fileName: null,
+            errorMessage: error.message,
+            errorType: "network",
+          }),
         );
     };
 
@@ -100,13 +124,15 @@ export default function IdentityDocumentScreen({
             label="Fronte"
             accept={ACCEPTED_TYPES_ATTR}
             documentState={frontState}
-            onFileSelect={handleFileSelect(setFrontState)}
+            onFileSelect={handleFileSelect(setFrontState, FRONT_STORAGE_KEY)}
+            previouslyUploaded={frontPreviouslyUploaded}
           />
           <FileUploadSlot
             label="Retro"
             accept={ACCEPTED_TYPES_ATTR}
             documentState={backState}
-            onFileSelect={handleFileSelect(setBackState)}
+            onFileSelect={handleFileSelect(setBackState, BACK_STORAGE_KEY)}
+            previouslyUploaded={backPreviouslyUploaded}
           />
         </div>
 
@@ -117,7 +143,7 @@ export default function IdentityDocumentScreen({
             onMouseEnter={() => !isReady && setShowHint(true)}
             onMouseLeave={() => setShowHint(false)}
             aria-disabled={!isReady}
-            className={`w-[85%] rounded-full px-10 py-3 text-base font-medium shadow-sm transition-colors sm:w-auto sm:px-14 ${
+            className={`flex w-[85%] items-center justify-center rounded-full px-10 py-3 text-base font-medium leading-none shadow-sm transition-colors sm:w-auto sm:px-14 ${
               isReady
                 ? "bg-dark text-text-light hover:bg-dark/90"
                 : "cursor-not-allowed bg-dark/40 text-text-light"
@@ -130,7 +156,7 @@ export default function IdentityDocumentScreen({
 
           {showHint && !isReady && (
             <p className="text-xs text-muted">
-              Carica entrambi i lati prima di continuare
+              Carica il documento prima di continuare
             </p>
           )}
         </div>

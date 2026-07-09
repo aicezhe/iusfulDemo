@@ -1,16 +1,21 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { ChangeEvent, DragEvent } from "react";
+import Accordion from "./Accordion";
+import FileExampleDiagram from "./FileExampleDiagram";
+import { compressImage } from "@/lib/compressImage";
 import type { DocumentState } from "@/types/upload";
 
 const MAX_SIZE_MB = 5;
+const SLOW_UPLOAD_THRESHOLD_MS = 3000;
 
 type FileUploadSlotProps = {
   label: string;
   documentState: DocumentState;
   onFileSelect: (file: File) => void;
   accept: string;
+  previouslyUploaded?: boolean;
 };
 
 export default function FileUploadSlot({
@@ -18,22 +23,44 @@ export default function FileUploadSlot({
   documentState,
   onFileSelect,
   accept,
+  previouslyUploaded = false,
 }: FileUploadSlotProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
-  const { status, fileName, errorMessage } = documentState;
+  const [lastFile, setLastFile] = useState<File | null>(null);
+  const [isSlow, setIsSlow] = useState(false);
+  const { status, fileName, errorMessage, errorType } = documentState;
+  const isLoading = status === "loading";
 
-  const openFilePicker = () => fileInputRef.current?.click();
+  useEffect(() => {
+    if (!isLoading) return;
+
+    const timeoutId = setTimeout(() => setIsSlow(true), SLOW_UPLOAD_THRESHOLD_MS);
+    return () => {
+      clearTimeout(timeoutId);
+      setIsSlow(false);
+    };
+  }, [isLoading]);
+
+  const openFilePicker = () => {
+    if (isLoading) return;
+    fileInputRef.current?.click();
+  };
+
+  const selectFile = (file: File) => {
+    setLastFile(file);
+    onFileSelect(file);
+  };
 
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file) onFileSelect(file);
+    if (file) selectFile(file);
     event.target.value = "";
   };
 
   const handleDragOver = (event: DragEvent<HTMLDivElement>) => {
     event.preventDefault();
-    setIsDragging(true);
+    if (!isLoading) setIsDragging(true);
   };
 
   const handleDragLeave = () => setIsDragging(false);
@@ -41,18 +68,33 @@ export default function FileUploadSlot({
   const handleDrop = (event: DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     setIsDragging(false);
+    if (isLoading) return;
     const file = event.dataTransfer.files?.[0];
-    if (file) onFileSelect(file);
+    if (file) selectFile(file);
+  };
+
+  const handleCompress = async () => {
+    if (!lastFile) return;
+    try {
+      const compressed = await compressImage(lastFile);
+      selectFile(compressed);
+    } catch {
+      // Compression isn't supported on this device — leave the existing error in place.
+    }
   };
 
   const borderClass =
     status === "error"
       ? "border-warning"
       : status === "success"
-        ? "border-solid border-dark/25"
+        ? "border-solid border-dark"
         : isDragging
           ? "border-accent"
           : "border-muted/50";
+
+  const backgroundClass = status === "success" ? "bg-dark/[0.08]" : "bg-dark/[0.03]";
+
+  const canCompress = errorType === "too-large" && lastFile?.type === "image/jpeg";
 
   return (
     <div className="flex flex-col gap-2">
@@ -64,7 +106,8 @@ export default function FileUploadSlot({
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
-        className={`flex flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed ${borderClass} bg-dark/[0.03] px-4 py-5 text-center transition-colors`}
+        aria-disabled={isLoading}
+        className={`flex flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed ${borderClass} ${backgroundClass} px-4 py-5 text-center transition-colors`}
       >
         {status === "empty" && (
           <>
@@ -77,9 +120,12 @@ export default function FileUploadSlot({
             >
               Sfoglia
             </button>
-            <p className="text-xs text-muted">
-              PDF, JPEG o PNG · Max {MAX_SIZE_MB}MB
-            </p>
+            <p className="text-xs text-muted">PDF o JPEG · Max {MAX_SIZE_MB}MB</p>
+            {previouslyUploaded && (
+              <p className="text-xs text-muted">
+                Caricato in precedenza — ricarica il file per continuare.
+              </p>
+            )}
           </>
         )}
 
@@ -87,13 +133,16 @@ export default function FileUploadSlot({
           <>
             <Spinner />
             <p className="text-sm text-text">Caricamento in corso…</p>
+            {isSlow && (
+              <p className="text-xs text-muted">Ci vuole un po&apos; più del solito…</p>
+            )}
           </>
         )}
 
         {status === "success" && (
           <>
             <CheckIcon />
-            <p className="max-w-full truncate text-sm text-text">{fileName}</p>
+            <p className="max-w-full truncate text-sm font-medium text-dark">{fileName}</p>
             <button
               type="button"
               onClick={openFilePicker}
@@ -108,6 +157,17 @@ export default function FileUploadSlot({
           <>
             <WarningIcon />
             <p className="text-sm text-warning">{errorMessage}</p>
+
+            {canCompress && (
+              <button
+                type="button"
+                onClick={handleCompress}
+                className="rounded-full border border-warning/40 px-5 py-2 text-sm font-medium text-warning transition-colors hover:bg-warning/5"
+              >
+                Comprimi automaticamente
+              </button>
+            )}
+
             <button
               type="button"
               onClick={openFilePicker}
@@ -115,9 +175,25 @@ export default function FileUploadSlot({
             >
               Sfoglia
             </button>
-            <p className="text-xs text-muted">
-              PDF, JPEG o PNG · Max {MAX_SIZE_MB}MB
-            </p>
+            <p className="text-xs text-muted">PDF o JPEG · Max {MAX_SIZE_MB}MB</p>
+
+            {errorType === "invalid-format" && (
+              <Accordion title="Il file non è JPEG o PDF? Controlla qui.">
+                Guarda il nome del file: dopo il punto c&apos;è il formato. Ad esempio
+                &quot;documento.pdf&quot; è un PDF, &quot;foto.jpg&quot; è una foto JPEG.
+                Se vedi un&apos;altra estensione (.png, .heic, .doc...), devi convertirlo
+                prima di caricarlo.
+                <FileExampleDiagram highlight="format" />
+              </Accordion>
+            )}
+
+            {errorType === "too-large" && (
+              <Accordion title="Il file supera i 5MB? Controlla qui.">
+                Sul tuo telefono o computer, apri i dettagli del file (tasto destro →
+                Proprietà, o tocca e tieni premuto → Informazioni) per vedere quanto pesa.
+                <FileExampleDiagram highlight="size" />
+              </Accordion>
+            )}
           </>
         )}
       </div>
@@ -155,12 +231,12 @@ function UploadIcon() {
 function CheckIcon() {
   return (
     <svg
-      width="22"
-      height="22"
+      width="28"
+      height="28"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth="1.5"
+      strokeWidth="2"
       className="text-dark"
       aria-hidden="true"
     >
