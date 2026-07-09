@@ -23,15 +23,17 @@ export default function ProcuraExplanationScreen({
           Procura alle liti
         </h1>
 
-        <p className="mt-2 max-w-xs text-base leading-relaxed text-muted sm:max-w-sm sm:text-lg">
-          Ci autorizza a seguire
-          <br />
-          <span className="text-dark underline decoration-accent decoration-2 underline-offset-4">
-            la tua pratica in tribunale.
-          </span>
-          <br />
-          Bastano 3 passaggi veloci.
-        </p>
+        <div className="mt-2 flex flex-col items-center gap-4">
+          <p className="max-w-xs text-base leading-relaxed text-muted sm:max-w-sm sm:text-lg">
+            Ci autorizza a seguire
+            <br />
+            <span className="font-medium text-dark underline decoration-accent decoration-2 underline-offset-4">
+              la tua pratica in tribunale.
+            </span>
+          </p>
+
+          <p className="text-sm text-muted/70">Bastano 3 passaggi veloci.</p>
+        </div>
 
         <button
           type="button"

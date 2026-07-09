@@ -16,6 +16,7 @@ const ACCEPTED_TYPES = ["image/jpeg", "application/pdf"];
 const ACCEPTED_TYPES_ATTR = ACCEPTED_TYPES.join(",");
 const MAX_SIZE_MB = 5;
 const MODULO_STORAGE_KEY = "procura-modulo";
+const DOWNLOAD_STORAGE_KEY = "procura-downloaded";
 const VERIFICATION_DELAY_MS = 2000;
 const DOWNLOAD_CONFIRMATION_MS = 800;
 const CONTINUE_TRANSITION_MS = 1400;
@@ -35,7 +36,9 @@ type ProcuraUploadScreenProps = {
 };
 
 export default function ProcuraUploadScreen({ onContinue, onBack }: ProcuraUploadScreenProps) {
-  const [hasDownloaded, setHasDownloaded] = useState(false);
+  const [hasDownloaded, setHasDownloaded] = useState(
+    () => readDocumentStatus(DOWNLOAD_STORAGE_KEY) === "done",
+  );
   const [showDownloadConfirmation, setShowDownloadConfirmation] = useState(false);
   const [documentState, setDocumentState] = useState<DocumentState>(EMPTY_STATE);
   const [previouslyUploaded] = useState(
@@ -52,8 +55,17 @@ export default function ProcuraUploadScreen({ onContinue, onBack }: ProcuraUploa
   const isStep3Done = verificationPhase === "received";
 
   const handleDownloadClick = () => {
-    downloadDummyPdf("procura-alle-liti.pdf");
+    // The download itself can behave differently across browsers (e.g. iOS
+    // Safari opens the PDF instead of saving it) — never let that block the
+    // flow. Mark step 1 done and persist it, so returning to this screen
+    // after the browser shows the PDF keeps step 3 unlocked.
+    try {
+      downloadDummyPdf("procura-alle-liti.pdf");
+    } catch {
+      // ignore — progress is driven by the state below, not the download result
+    }
     setHasDownloaded(true);
+    saveDocumentStatus(DOWNLOAD_STORAGE_KEY, "done");
     setShowDownloadConfirmation(true);
     setTimeout(() => setShowDownloadConfirmation(false), DOWNLOAD_CONFIRMATION_MS);
   };
