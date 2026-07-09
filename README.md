@@ -1,65 +1,221 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Iusful — Document Upload Wizard
 
-## Getting Started
+Flusso guidato di caricamento documenti per l'avvio di una pratica legale, progettato attorno a un utente ansioso e poco familiare con il linguaggio giuridico.
 
-First, run the development server:
+**Demo live:** https://iusful-demo-0907.vercel.app
+**Repository:** https://github.com/aicezhe/iusfulDemo
+
+---
+
+## Il problema
+
+Nella raccolta documenti di uno studio legale digitale, i clienti sono spesso ansiosi, non comprendono il gergo legale e caricano file errati o illeggibili — rallentando la propria stessa pratica.
+
+Questo componente guida l'utente nel caricamento di due documenti fondamentali:
+
+1. **Documento d'identità** (fronte/retro)
+2. **Procura alle liti** (modulo da scaricare, firmare offline e ricaricare)
+
+Nessun backend reale: lo stato è gestito in memoria e con `localStorage`, le chiamate API sono simulate con timeout.
+
+---
+
+## Stack e avvio
+
+Next.js (App Router) · TypeScript · Tailwind CSS
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev     # http://localhost:3000
+npm test        # unit test sulla validazione file
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Struttura del flusso
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. **Intro** — benvenuto, rassicurazione sulla privacy
+2. **Spiegazione** — cosa serve e perché, con tono rassicurante
+3. **Documento d'identità** — caricamento fronte/retro · "Documento 1 di 2"
+4. **Procura alle liti** — spiegazione, poi 3 sotto-passaggi in un unico step · "Documento 2 di 2"
+5. **Successo** — conferma finale con riepilogo e tempistiche
 
-## Learn More
+Wizard multi-step su un'unica pagina, senza cambio di URL tra gli step: senza backend e senza persistenza cross-dispositivo, separare gli step su URL diversi non avrebbe portato benefici reali (non si potrebbe "riprendere da un link"), solo complessità di navigazione in più. Il progresso è comunicato tramite indicatore testuale, non tramite la barra degli indirizzi.
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Quali scelte UX ho fatto per ridurre l'ansia e prevenire gli errori
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Linguaggio: concretezza, non rassicurazioni generiche
 
-## Deploy on Vercel
+Ho evitato affermazioni vaghe ("è facile", "niente stress") a favore di informazioni concrete e misurabili — *"Due documenti, senza complicazioni"*, *"Bastano 3 passaggi veloci"*, *"Riceverai una risposta entro poche ore"*. Per chi è in ansia, sapere **esattamente** quanto manca rassicura più di qualsiasi promessa astratta: l'incertezza è ciò che genera ansia, non la difficoltà in sé.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Nella gerarchia dei testi ho messo per primo il messaggio emotivo (*"Ti guidiamo passo dopo passo — non serve sapere nulla di legale"*) e solo dopo l'informazione funzionale ("ci servono 2 documenti"): prima si rassicura, poi si chiede.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Prevenzione strutturale, non correzione a posteriori
 
-## Scelte di design (Document Upload Wizard)
+Il modo migliore di gestire un errore è impedire che accada.
 
-**Compressione delle immagini lato client.** Quando una foto JPEG supera i 5MB, la demo
-non propone un servizio esterno di conversione: i documenti d'identità sono dati
-personali sensibili, e inviarli a un sito terzo non verificato contraddirebbe i valori
-di sicurezza dei dati che Iusful comunica ai propri utenti. Al loro posto, la
-compressione avviene interamente nel browser tramite Canvas API (`lib/compressImage.ts`):
-il file non lascia mai il dispositivo dell'utente. È una scelta più solida di un semplice
-link a un convertitore online, non una funzionalità mancante.
+- I pulsanti "Avanti"/"Continua" sono **disabilitati** finché l'azione richiesta non è completata — invece di lasciare cliccare e poi mostrare un errore
+- Il pulsante "Carica" della Procura resta disabilitato finché il modulo non è stato scaricato — l'unico percorso possibile è quello corretto, non esiste una "strada sbagliata" da imboccare
+- Formati ammessi e dimensione massima sono indicati **dentro l'area di caricamento**, prima del tentativo, non solo nel messaggio di errore
 
-**Persistenza dello stato con localStorage.** In questa demo uso `localStorage` per
-salvare solo lo *stato* di avanzamento di ogni caricamento (es. "success"), non il file
-stesso — i `File` non sono serializzabili e comunque non dovrebbero restare sul
-dispositivo. Se l'utente chiude la scheda e torna, vede un indicatore "caricato in
-precedenza" ma deve ricaricare il file per procedere davvero. In produzione, con un
-backend reale, salverei lo stato progressivamente sul server ad ogni step, permettendo
-il ripristino da qualsiasi dispositivo.
+### Errori: tono, colore, contenuto
 
-## Come testare i diversi stati
+**Colore.** Tutti gli stati di errore usano l'**arancione** del brand, mai il rosso. L'arancione è già parte della palette Iusful, è percettivamente più morbido, e in contrasto con il verde di base crea una segnalazione chiara ma non allarmante. Il rosso, per convenzione culturale, comunica "pericolo" — sproporzionato rispetto a un file di formato sbagliato.
 
-Nella cartella `test-files/` del repository trovi file pronti per testare ogni stato:
+**Iconografia.** Ho scelto un'icona di ricarica/riprova invece del classico triangolo di avvertimento: il triangolo con punto esclamativo, anche in arancione, richiama i segnali di pericolo. Un'icona che suggerisce "riprova" comunica che il problema è risolvibile, non che qualcosa si è rotto.
 
-- `documento-formato-errato.txt` → attiva l'errore di formato non valido
-- `documento-troppo-grande.pdf` (~6MB) → attiva l'errore di dimensione
-- `documento-vuoto.pdf` (0 byte) → attiva l'errore di file danneggiato
-- `test-error.pdf` → attiva l'errore di rete in modo deterministico (per demo —
-  normalmente è casuale, ~10% delle volte)
-- `documento-valido.pdf` → carica con successo, per vedere lo stato Successo
+**Formulazione.** I messaggi dicono cosa è successo **e cosa fare**, in linguaggio quotidiano: mostro l'estensione reale del file caricato (*"Hai caricato un file .png"*), non un codice errore. Ogni errore ha un'uscita.
+
+**Spiegazioni con schema visivo.** Per chi è in stato di nervosismo, ho aggiunto spiegazioni accompagnate da un piccolo schema grafico — come controllare il formato o il peso di un file — così che non debba cercare altrove mentre è già bloccato.
+
+### Spiegare i termini legali, non solo i formati dei file
+
+Avevo promesso *"non serve sapere nulla di legale"* nella schermata introduttiva — ma "Procura alle liti" resta un termine tecnico, e mostrarlo senza spiegazione avrebbe tradito quella promessa proprio nel punto in cui l'utente è più vulnerabile.
+
+Ho aggiunto una spiegazione in linguaggio quotidiano, visibile subito, non nascosta in un accordion: *"In pratica, ci dai il permesso di parlare per te in tribunale — così non devi andarci di persona."* Nessun accordion qui, perché non è un dettaglio opzionale: è la comprensione minima necessaria per procedere con fiducia, non un extra per chi vuole approfondire.
+
+### Stati UI — quattro stati, sempre distinguibili
+
+Ogni punto di caricamento (documento d'identità fronte/retro, Procura) gestisce esplicitamente i 4 stati richiesti, ciascuno con una differenza visiva netta, non solo testuale:
+
+- **Vuoto / in attesa** — bordo tratteggiato neutro, icona di upload, testo su formati e dimensione ammessi già visibile
+- **Caricamento** — spinner attivo, elementi interattivi disabilitati (previene doppi invii)
+- **Successo** — bordo e conferma di colore pieno, nome del file visibile, opzione "Cambia file"
+- **Errore** — bordo arancione (mai rosso), messaggio con causa specifica e azione suggerita
+
+La differenza non è solo cromatica ma strutturale: in nessuno dei quattro stati l'utente deve interpretare un'assenza di segnale come informazione — ogni stato comunica attivamente cosa sta succedendo.
+
+### Verifica AI simulata
+
+Dopo il caricamento di ciascun documento mostro *"I documenti vengono elaborati dall'IA…"*, poi *"Documento verificato"*. Non affermo mai che il documento sia *"verificato come firmato"*: nella demo quel controllo non esiste.
+
+La simulazione non è un placeholder lasciato a metà — serve a rendere leggibile l'intero flusso del wizard, dal caricamento alla conferma, così che chi valuta il prototipo veda il percorso completo che l'utente vivrebbe. Non promette una funzionalità che non c'è.
+
+### Progressive disclosure
+
+Le spiegazioni opzionali (*"Come controllo il formato del file?"*) vivono in accordion chiusi di default, sullo stile della sezione FAQ del sito Iusful. Disponibili per chi ne ha bisogno, invisibili per chi non ne ha: un eccesso di informazione, come un eccesso di premure, può generare ansia invece di ridurla.
+
+### Il momento del successo: calma, non euforia
+
+Avevo esplorato transizioni più espressive per la conferma finale. Ho scelto invece una sequenza **lenta e morbida** (schiarimento e oscuramento progressivi, comparsa in dissolvenza) — perché un utente ansioso cerca **sollievo**, non sorpresa. Un'animazione improvvisa o vistosa, anche positiva, produce attivazione; una lenta produce distensione. Le animazioni rispettano `prefers-reduced-motion`.
+
+Il successo intermedio (dopo il documento d'identità) è volutamente più sobrio del successo finale: la differenza di "peso" visivo comunica che uno è un checkpoint, l'altro la conclusione.
+
+### Design: una gerarchia di colore, non una scelta estetica
+
+Prima di scegliere i colori, ho deciso la loro **funzione**: ogni colore doveva avere un unico ruolo, mai sovrapposto ad un altro, così che l'occhio dell'utente potesse leggerlo come segnale, non come decorazione.
+
+- **Verde** → base, struttura, ciò che è normale/completato. È il colore di "riposo" della pagina.
+- **Arancione** → azione e attenzione — un CTA attivo, un passaggio in corso, un errore da correggere. Mai più di uno o due elementi arancioni per schermata: un accento che è ovunque smette di essere un accento.
+- **Grigio/muted** → ciò che non richiede ancora attenzione (uno step futuro, un'etichetta strutturale come "Fronte"/"Retro").
+
+Con questa gerarchia decisa a monte, i colori specifici sono venuti dal sito Iusful, per coerenza tematica: il **verde** come base — naturale, calmo, non affaticante — e l'**arancione** come accento, in corsivo nei titoli, ispirato all'uso che ne fa il sito originale. Le **linee decorative con punto**, in alto e in basso, sono ispirate al punto tra "ius" e "ful" del logo: servono a "posare" la pagina, a darle un contenimento visivo — un ulteriore, silenzioso elemento di calma.
+
+Le stesse linee con punto, oltre che nelle schermate di benvenuto, separano i **3 blocchi** della sezione Procura alle liti, dando struttura leggibile a uno step più articolato.
+
+### Elementi specifici
+
+**La ruota dei documenti.** Nella schermata del documento d'identità, i tipi accettati scorrono in una ruota verticale — un rimando allo stile del sito originale, e un modo per mostrare quattro opzioni senza occupare quattro righe di testo.
+
+**Stato colore progressivo nella Procura.** Nei 3 sotto-passaggi, lo step attivo è arancione, quelli già completati tornano al colore normale, quelli futuri restano attenuati. L'utente vede sempre dove si trova, senza doverlo dedurre.
+
+**Permesso di soggiorno tra i documenti accettati.** Non era esplicitamente richiesto dal task. Da straniera in Italia, so che molti utenti potenziali non hanno un documento italiano "standard": escluderli al primo passo è un problema di prodotto, non un dettaglio.
+
+**Indicatore di progresso.** "Documento X di 2", sempre visibile durante il caricamento, mai nelle schermate di intro o successo — sapere quanto manca è metà della calma.
+
+---
+
+## Gestione errori
+
+| Errore | Gestione |
+|---|---|
+| Formato non valido | Messaggio con l'estensione reale caricata; solo PDF o JPEG |
+| File > 5MB | Compressione automatica lato client per le immagini; alternativa suggerita per i PDF |
+| File danneggiato/vuoto | Messaggio chiaro, invito a riprovare |
+| Errore di rete (simulato) | ~10% casuale; deterministico se il nome file contiene "test-error" |
+| Procedere senza aver caricato | Impedito strutturalmente (pulsante disabilitato) |
+| Doppio click durante il caricamento | Elementi disabilitati durante lo stato di loading |
+
+### Come testare i diversi stati
+
+Nella cartella `test-files/`:
+
+| File | Stato attivato |
+|---|---|
+| `documento-formato-errato.txt` | Formato non valido |
+| `documento-troppo-grande.pdf` (~6MB) | Dimensione eccessiva |
+| `documento-vuoto.pdf` (0 byte) | File danneggiato |
+| `test-error.pdf` | Errore di rete (deterministico) |
+| `documento-valido.pdf` | Caricamento riuscito |
+
+L'errore di rete è normalmente casuale (~10%), per simulare realisticamente una connessione instabile. Il trigger sul nome file lo rende verificabile senza affidarsi al caso.
+
+---
+
+## Decisioni tecniche
+
+**Stato.** Un unico oggetto `documents`, con chiave per tipo (idFront/idBack/procura) e la stessa struttura per ciascuno (`{file, status, errorMessage}`). I tre documenti condividono forma dei dati e logica di gestione: un'unica struttura evita duplicazione e permette di riutilizzare lo stesso componente `FileUploadSlot` per tutti e tre.
+
+**Persistenza.** `localStorage` per lo stato di avanzamento (solo i metadati, non i file — non serializzabili). In produzione, con un backend reale, salverei lo stato sul server ad ogni step completato, permettendo il ripristino da qualsiasi dispositivo.
+
+**Stati UI.** Ogni punto di caricamento gestisce esplicitamente i 4 stati richiesti — vuoto/in attesa, caricamento, successo, errore — con differenze visive nette, così che l'utente non sia mai in una situazione ambigua.
+
+**Verifica AI simulata.** Dopo il caricamento di ciascun documento mostro "I documenti vengono elaborati dall'IA…", poi "Documento verificato". Non affermo mai che il documento sia stato *"verificato come firmato"*: nella demo quel controllo non avviene. La simulazione serve a rendere leggibile il flusso completo del wizard, non a promettere una funzionalità inesistente.
+
+**Test.** Unit test sulla logica di validazione file (`lib/fileValidation.ts`) — pura logica, senza side-effect, la parte più critica e più facilmente testabile. Non ho coperto l'intero progetto: ho preferito concentrare il tempo sull'esperienza utente, che era il focus richiesto.
+
+---
+
+## Sicurezza: una scelta consapevole
+
+Avevo considerato di inserire link a servizi esterni per comprimere o convertire i file (es. iLovePDF): dal punto di vista dell'usabilità pura, sarebbe stata una scorciatoia comoda.
+
+L'ho **deliberatamente esclusa**. Inviare un documento d'identità a un servizio di terze parti non verificato contraddice i principi di protezione dei dati che Iusful comunica esplicitamente (GDPR, "massima protezione dei dati"). Ho risolto lo stesso problema in modo più sicuro: **compressione lato client tramite Canvas API**, eseguita interamente nel browser dell'utente — il file non lascia mai il dispositivo.
+
+---
+
+## Cosa NON ho implementato, e perché
+
+- **Link esterni per compressione/conversione** — sostituiti con compressione lato client (vedi sopra)
+- **Verifica AI reale del contenuto** — richiede un backend, fuori dallo scope del task; simulata con disclaimer onesto
+- **Backend reale** — esplicitamente escluso dal task
+- **Cookie banner** — nessun tracciamento reale nella demo
+
+---
+
+## Se avessi avuto più tempo
+
+**Backend reale e verifica AI vera.** Oggi la verifica del documento è simulata, per rendere leggibile il flusso completo. Con un backend, userei un modello di visione (OCR + comprensione strutturata) per estrarre i campi dal documento caricato e confrontarli con regole di base già presenti nel database: formato dei documenti italiani validi, campi obbligatori attesi, coerenza tra fronte e retro, data di scadenza. Il sistema segnalerebbe automaticamente un documento scaduto, una pagina sbagliata o una scansione illeggibile **prima** che arrivi all'avvocato — riducendo i tempi di revisione e intercettando gli errori evidenti. Sempre come filtro che precede la revisione dell'avvocato, mai come suo sostituto.
+
+**Metriche da tracciare per capire dove i clienti si bloccano:**
+- **Drop-off per step** — su quale schermata si abbandona di più (identifica il punto di attrito)
+- **Tentativi falliti prima del successo**, per tipo di errore — se molti sbagliano formato, il problema è la comunicazione, non l'utente
+- **Tempo medio per step e complessivo** — uno step molto più lento degli altri indica confusione
+- **Percentuale di apertura degli accordion informativi** — se quasi tutti li aprono, quell'informazione dovrebbe essere visibile di default; se quasi nessuno, è ben nascosta
+- **Tasso di abbandono dopo un errore** — misura quanto un messaggio di errore è davvero "non frustrante"
+
+Queste metriche insieme dicono non solo *dove* ci si blocca, ma *perché*: un drop-off alto senza errori significa che l'utente non ha capito cosa fare; un drop-off alto dopo errori significa che il messaggio non lo ha aiutato a uscirne.
+
+**Esperienza desktop arricchita.** Il flusso è responsive e funziona su desktop, ma è stato progettato mobile-first come richiesto. Con più tempo sfrutterei meglio lo spazio orizzontale disponibile su schermi grandi: layout affiancati, stati hover più ricchi, anteprima del documento caricato accanto all'area di upload.
+
+**Più animazioni e micro-interazioni**, mantenendo la stessa filosofia: mai vistose, sempre al servizio della calma e della comprensione di ciò che sta accadendo.
+
+**Strumenti interni per la gestione dei file** — conversione e compressione proprietarie, invece di dipendere da servizi esterni. Risolverebbe insieme il problema della sicurezza (i file non escono mai dall'ecosistema Iusful) e quello dell'usabilità (l'utente non deve uscire dal flusso per sistemare un file).
+
+**Possibilità di tornare indietro** e sostituire un file già caricato in qualsiasi punto del flusso, con persistenza garantita del progresso.
+
+---
+
+## Processo di lavoro
+
+Ho iniziato disegnando gli schermi a mano su iPad — struttura, gerarchia delle informazioni, punti di attrito da anticipare — prima di aprire l'editor. Le correzioni fini (spaziature, dettagli di layout, coerenza tra le schermate) sono arrivate dopo, direttamente sull'implementazione, confrontando ogni volta il risultato con l'intenzione originale dello schizzo.
+
+Per l'implementazione ho usato Claude Code come assistente di sviluppo — per accelerare la scrittura di boilerplate e la messa a punto tecnica. Le decisioni di prodotto, il flusso, i testi, la gerarchia visiva, la gestione degli errori e le scelte di sicurezza restano mie: l'ho usato per scrivere codice più in fretta, non per pensare al posto mio. Ogni componente generato è stato letto, capito e corretto quando necessario, non semplicemente accettato.
+
+---
+
+## Nota finale
+
+Ho scelto di seguire lo stile visivo esistente di Iusful — colori, tipografia, tono — invece di inventarne uno nuovo, per dimostrare che il componente si integrerebbe naturalmente nel prodotto reale, non come esercizio isolato. Le decisioni di prodotto e UX (struttura del flusso, testi, gestione degli errori, architettura dello stato, scelte di sicurezza) sono mie, elaborate a partire da un'analisi diretta del prodotto esistente.
