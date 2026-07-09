@@ -10,12 +10,15 @@ import SuccessOverlay from "./SuccessOverlay";
 import { validateFile } from "@/lib/fileValidation";
 import { simulateUpload } from "@/lib/simulateUpload";
 import { readDocumentStatus, saveDocumentStatus } from "@/lib/localStorage";
-import { downloadDummyPdf } from "@/lib/downloadDummyPdf";
 import type { DocumentState } from "@/types/upload";
 
 const ACCEPTED_TYPES = ["image/jpeg", "application/pdf"];
 const ACCEPTED_TYPES_ATTR = ACCEPTED_TYPES.join(",");
 const MAX_SIZE_MB = 5;
+// A real static file (served from /public) linked via a plain anchor is the
+// only reliable way to hand the PDF to iOS Safari — it ignores programmatic
+// blob/data-URL downloads triggered by a synthetic click.
+const MODULO_FILE_PATH = "/procura-alle-liti.pdf";
 const MODULO_STORAGE_KEY = "procura-modulo";
 const DOWNLOAD_STORAGE_KEY = "procura-downloaded";
 const VERIFICATION_DELAY_MS = 2000;
@@ -44,11 +47,9 @@ export default function ProcuraUploadScreen({ onBack }: ProcuraUploadScreenProps
   const [showContinueHint, setShowContinueHint] = useState(false);
   const [showCompletion, setShowCompletion] = useState(false);
 
-  // Every wizard screen now stays mounted for the whole session (see
-  // UploadWizard), including during the initial server-rendered pass — so
-  // reading localStorage via a lazy useState initializer would mismatch the
-  // server's render (no localStorage there) and break hydration. Read it
-  // client-side after mount instead.
+  // localStorage is only available client-side (the server renders defaults),
+  // so its values are read after mount rather than via a lazy useState
+  // initializer, which would mismatch the server render and break hydration.
   /* eslint-disable react-hooks/set-state-in-effect -- syncing from
      localStorage, only available client-side; see comment above. */
   useEffect(() => {
@@ -63,15 +64,10 @@ export default function ProcuraUploadScreen({ onBack }: ProcuraUploadScreenProps
   const isStep3Done = verificationPhase === "received";
 
   const handleDownloadClick = () => {
-    // The download itself can behave differently across browsers (e.g. iOS
-    // Safari opens the PDF instead of saving it) — never let that block the
-    // flow. Mark step 1 done and persist it, so returning to this screen
-    // after the browser shows the PDF keeps step 3 unlocked.
-    try {
-      downloadDummyPdf("procura-alle-liti.pdf");
-    } catch {
-      // ignore — progress is driven by the state below, not the download result
-    }
+    // The anchor performs the actual download/open natively — this only
+    // records progress (persisted so returning keeps step 3 unlocked) and
+    // shows a brief confirmation. Never gate the flow on the download itself,
+    // since iOS Safari opens the PDF in its viewer rather than saving it.
     setHasDownloaded(true);
     saveDocumentStatus(DOWNLOAD_STORAGE_KEY, "done");
     setShowDownloadConfirmation(true);
@@ -157,20 +153,23 @@ export default function ProcuraUploadScreen({ onBack }: ProcuraUploadScreenProps
 
         <div className="flex w-full flex-col items-center gap-6">
           <StepRow number={1} label="Scarica il modulo" isComplete={isStep1Done}>
-            <button
-              type="button"
+            <a
+              href={MODULO_FILE_PATH}
+              download="procura-alle-liti.pdf"
+              target="_blank"
+              rel="noopener"
               onClick={handleDownloadClick}
-              className={`flex items-center justify-center rounded-full px-8 py-3 text-base font-semibold leading-none shadow-sm transition-colors ${
+              className={`inline-flex items-center justify-center rounded-full px-8 py-3 text-base font-semibold leading-none shadow-sm transition-colors ${
                 hasDownloaded
                   ? "border border-dark/20 text-dark hover:bg-dark/5"
                   : "bg-accent text-dark hover:bg-accent/90"
               }`}
             >
               {hasDownloaded ? "Scaricato ✓ — scarica di nuovo" : "Scarica il modulo"}
-            </button>
+            </a>
             <p className="mt-2 text-xs text-muted">
-              Il modulo si apre nel browser: salvalo con l&apos;icona
-              Condividi, poi torna indietro per caricarlo qui.
+              Su telefono il modulo si apre in una nuova scheda: salvalo con
+              l&apos;icona Condividi, poi torna qui per caricarlo.
             </p>
           </StepRow>
 
