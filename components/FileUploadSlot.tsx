@@ -64,7 +64,7 @@ export default function FileUploadSlot({
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
-        className={`flex flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed ${borderClass} bg-dark/[0.03] px-6 py-8 text-center transition-colors`}
+        className={`flex flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed ${borderClass} bg-dark/[0.03] px-4 py-5 text-center transition-colors`}
       >
         {status === "empty" && (
           <>
@@ -136,8 +136,8 @@ export default function FileUploadSlot({
 function UploadIcon() {
   return (
     <svg
-      width="28"
-      height="28"
+      width="22"
+      height="22"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -155,8 +155,8 @@ function UploadIcon() {
 function CheckIcon() {
   return (
     <svg
-      width="28"
-      height="28"
+      width="22"
+      height="22"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -173,8 +173,8 @@ function CheckIcon() {
 function WarningIcon() {
   return (
     <svg
-      width="28"
-      height="28"
+      width="22"
+      height="22"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -192,7 +192,7 @@ function WarningIcon() {
 function Spinner() {
   return (
     <div
-      className="h-7 w-7 animate-spin rounded-full border-2 border-muted/40 border-t-dark"
+      className="h-6 w-6 animate-spin rounded-full border-2 border-muted/40 border-t-dark"
       aria-hidden="true"
     />
   );

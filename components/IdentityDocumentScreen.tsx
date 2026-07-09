@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import DocumentTypeCycler from "./DocumentTypeCycler";
 import FileUploadSlot from "./FileUploadSlot";
 import SuccessOverlay from "./SuccessOverlay";
 import { validateFile } from "@/lib/fileValidation";
@@ -79,14 +80,18 @@ export default function IdentityDocumentScreen({
       {phase === "overlay" && <SuccessOverlay message="Tutto corretto, grazie!" />}
 
       <div className="flex w-full max-w-md flex-col items-center gap-8 sm:max-w-lg">
-        <div className="flex flex-col items-center gap-3">
-          <h1 className="font-serif text-3xl leading-snug text-dark sm:text-4xl">
-            Documento d&apos;identità
-          </h1>
-          <p className="max-w-sm text-sm text-muted">
-            Carta d&apos;identità, passaporto, patente di guida o permesso di
-            soggiorno — in corso di validità.
-          </p>
+        <div className="flex flex-col items-center gap-4">
+          <DocumentTypeCycler />
+
+          <div className="flex flex-col items-center gap-3">
+            <h1 className="font-serif text-3xl leading-snug text-dark sm:text-4xl">
+              Documento d&apos;identità
+            </h1>
+            <p className="max-w-sm text-sm text-muted">
+              Carta d&apos;identità, passaporto, patente di guida o permesso di
+              soggiorno — in corso di validità.
+            </p>
+          </div>
         </div>
 
         <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2">
