@@ -88,8 +88,9 @@ export default function IdentityDocumentScreen({
               Documento d&apos;identità
             </h1>
             <p className="max-w-sm text-sm text-muted">
-              Carta d&apos;identità, passaporto, patente di guida o permesso di
-              soggiorno — in corso di validità.
+              Il documento d&apos;identità è un documento ufficiale che
+              dimostra chi sei. Ci serve per verificare in modo sicuro chi
+              sta avviando la pratica.
             </p>
           </div>
         </div>
