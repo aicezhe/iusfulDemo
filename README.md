@@ -26,7 +26,7 @@ Next.js (App Router) · TypeScript · Tailwind CSS
 
 ```bash
 npm install
-npm run dev     # http://localhost:3000
+npm run dev     # http://localhost:3002
 npm test        # unit test sulla validazione file
 ```
 
