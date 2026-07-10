@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
+import Accordion from "./Accordion";
 import AiProcessingStatus, {
   AI_PROCESSING_DURATION_MS,
   type AiPhase,
@@ -194,18 +195,15 @@ export default function ProcuraUploadScreen({ onBack }: ProcuraUploadScreenProps
             <p className="text-sm text-muted">
               Stampalo e firmalo a mano, oppure firmalo direttamente sul telefono.
             </p>
-            <details className="w-full max-w-xs text-left sm:max-w-sm">
-              <summary className="cursor-pointer text-xs font-medium text-dark">
-                Come firmo il PDF dal telefono?
-              </summary>
-              <p className="mt-2 text-xs leading-relaxed text-muted">
+            <div className="w-full max-w-xs sm:max-w-sm">
+              <Accordion title="Come firmo il PDF dal telefono?">
                 Su iPhone: apri il PDF nell&apos;app File, tocca l&apos;icona della
                 penna in alto a destra, poi il &quot;+&quot; e scegli Firma.
                 <br />
                 Su Android: apri il PDF con Adobe Acrobat Reader, tocca la penna,
                 poi Compila e firma.
-              </p>
-            </details>
+              </Accordion>
+            </div>
           </StepRow>
 
           <StepDivider />
