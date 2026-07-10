@@ -16,6 +16,9 @@ type FileUploadSlotProps = {
   onFileSelect: (file: File) => void;
   accept: string;
   previouslyUploaded?: boolean;
+  // The selected file lives in the parent (lifted to the wizard) so it survives
+  // navigating away and back — this slot just renders it.
+  file?: File | null;
 };
 
 export default function FileUploadSlot({
@@ -24,11 +27,11 @@ export default function FileUploadSlot({
   onFileSelect,
   accept,
   previouslyUploaded = false,
+  file = null,
 }: FileUploadSlotProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
-  const [lastFile, setLastFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [isSlow, setIsSlow] = useState(false);
@@ -48,15 +51,15 @@ export default function FileUploadSlot({
   // Build an object URL for image previews and always revoke it — on the next
   // file (replacement) and on unmount — so "Cambia file" never leaks memory.
   useEffect(() => {
-    if (!lastFile || !lastFile.type.startsWith("image/")) {
+    if (!file || !file.type.startsWith("image/")) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setPreviewUrl(null);
       return;
     }
-    const url = URL.createObjectURL(lastFile);
+    const url = URL.createObjectURL(file);
     setPreviewUrl(url);
     return () => URL.revokeObjectURL(url);
-  }, [lastFile]);
+  }, [file]);
 
   useEffect(() => {
     if (!isPreviewOpen) return;
@@ -77,14 +80,13 @@ export default function FileUploadSlot({
     cameraInputRef.current?.click();
   };
 
-  const selectFile = (file: File) => {
-    setLastFile(file);
-    onFileSelect(file);
+  const selectFile = (selected: File) => {
+    onFileSelect(selected);
   };
 
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) selectFile(file);
+    const selected = event.target.files?.[0];
+    if (selected) selectFile(selected);
     event.target.value = "";
   };
 
@@ -99,14 +101,14 @@ export default function FileUploadSlot({
     event.preventDefault();
     setIsDragging(false);
     if (isLoading) return;
-    const file = event.dataTransfer.files?.[0];
-    if (file) selectFile(file);
+    const dropped = event.dataTransfer.files?.[0];
+    if (dropped) selectFile(dropped);
   };
 
   const handleCompress = async () => {
-    if (!lastFile) return;
+    if (!file) return;
     try {
-      const compressed = await compressImage(lastFile);
+      const compressed = await compressImage(file);
       selectFile(compressed);
     } catch {
       // Compression isn't supported on this device — leave the existing error in place.
@@ -131,7 +133,7 @@ export default function FileUploadSlot({
 
   const canCompress =
     errorType === "too-large" &&
-    (lastFile?.type === "image/jpeg" || lastFile?.type === "image/png");
+    (file?.type === "image/jpeg" || file?.type === "image/png");
 
   return (
     <div className="flex flex-col gap-2">
@@ -229,8 +231,8 @@ export default function FileUploadSlot({
                 scura, riscattala.
               </p>
             ) : (
-              lastFile && (
-                <p className="text-xs text-muted">{formatFileSize(lastFile.size)}</p>
+              file && (
+                <p className="text-xs text-muted">{formatFileSize(file.size)}</p>
               )
             )}
 

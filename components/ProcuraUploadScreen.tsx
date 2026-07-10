@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { ReactNode } from "react";
+import type { Dispatch, ReactNode, SetStateAction } from "react";
 import Accordion from "./Accordion";
 import AiProcessingStatus, {
   AI_PROCESSING_DURATION_MS,
@@ -38,34 +38,61 @@ const EMPTY_STATE: DocumentState = {
 
 type StepStatus = "upcoming" | "active" | "completed";
 
+// Lifted to the wizard so the download/sign/upload progress and the uploaded
+// file survive navigating away and back. procuraSigned is intentionally kept
+// out of localStorage (see handleSignedToggle) — only in-session memory.
+export type ProcuraUploadState = {
+  hasDownloaded: boolean;
+  alreadyHasForm: boolean;
+  procuraSigned: boolean;
+  documentState: DocumentState;
+  moduloFile: File | null;
+  verificationPhase: AiPhase;
+};
+
+export const INITIAL_PROCURA_UPLOAD: ProcuraUploadState = {
+  hasDownloaded: false,
+  alreadyHasForm: false,
+  procuraSigned: false,
+  documentState: EMPTY_STATE,
+  moduloFile: null,
+  verificationPhase: "idle",
+};
+
 type ProcuraUploadScreenProps = {
+  value: ProcuraUploadState;
+  onChange: Dispatch<SetStateAction<ProcuraUploadState>>;
   onBack: () => void;
 };
 
-export default function ProcuraUploadScreen({ onBack }: ProcuraUploadScreenProps) {
-  const [hasDownloaded, setHasDownloaded] = useState(false);
-  const [alreadyHasForm, setAlreadyHasForm] = useState(false);
-  // Signing happens off-screen (printer, Files app, pen), so nothing in the app
-  // can observe it — the user confirms it explicitly. Deliberately NOT persisted:
-  // a "signed" flag restored with no file behind it would be phantom state.
-  const [procuraSigned, setProcuraSigned] = useState(false);
+export default function ProcuraUploadScreen({ value, onChange, onBack }: ProcuraUploadScreenProps) {
+  const {
+    hasDownloaded,
+    alreadyHasForm,
+    procuraSigned,
+    documentState,
+    moduloFile,
+    verificationPhase,
+  } = value;
+
+  const patch = (updates: Partial<ProcuraUploadState>) =>
+    onChange((prev) => ({ ...prev, ...updates }));
+
   const [announcement, setAnnouncement] = useState("");
   const [showDownloadConfirmation, setShowDownloadConfirmation] = useState(false);
-  const [documentState, setDocumentState] = useState<DocumentState>(EMPTY_STATE);
   const [previouslyUploaded, setPreviouslyUploaded] = useState(false);
-  const [verificationPhase, setVerificationPhase] = useState<AiPhase>("idle");
   const [showUploadHint, setShowUploadHint] = useState(false);
   const [showContinueHint, setShowContinueHint] = useState(false);
   const [showCompletion, setShowCompletion] = useState(false);
 
-  // localStorage is only available client-side (the server renders defaults),
-  // so its values are read after mount rather than via a lazy useState
-  // initializer, which would mismatch the server render and break hydration.
+  // localStorage is only available client-side. The download flag persists
+  // across reloads; the file itself and the "signed" flag do not.
   /* eslint-disable react-hooks/set-state-in-effect -- syncing from
      localStorage, only available client-side; see comment above. */
   useEffect(() => {
-    setHasDownloaded(readDocumentStatus(DOWNLOAD_STORAGE_KEY) === "done");
+    if (readDocumentStatus(DOWNLOAD_STORAGE_KEY) === "done") patch({ hasDownloaded: true });
     setPreviouslyUploaded(readDocumentStatus(MODULO_STORAGE_KEY) === "success");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   /* eslint-enable react-hooks/set-state-in-effect */
 
@@ -92,7 +119,7 @@ export default function ProcuraUploadScreen({ onBack }: ProcuraUploadScreenProps
     // records progress (persisted so returning keeps step 3 unlocked) and
     // shows a brief confirmation. Never gate the flow on the download itself,
     // since iOS Safari opens the PDF in its viewer rather than saving it.
-    setHasDownloaded(true);
+    patch({ hasDownloaded: true });
     saveDocumentStatus(DOWNLOAD_STORAGE_KEY, "done");
     setShowDownloadConfirmation(true);
     setTimeout(() => setShowDownloadConfirmation(false), DOWNLOAD_CONFIRMATION_MS);
@@ -102,59 +129,73 @@ export default function ProcuraUploadScreen({ onBack }: ProcuraUploadScreenProps
     "Modulo confermato come firmato. Ora puoi caricarlo qui sotto.";
 
   const handleSignedToggle = (checked: boolean) => {
-    setProcuraSigned(checked);
     if (checked) {
+      patch({ procuraSigned: true });
       setAnnouncement(UPLOAD_UNLOCKED_MESSAGE);
       return;
     }
     // Unchecking says the premise changed: there's nothing signed to upload.
     // Re-lock step 3 and discard any file already sitting there.
-    setAlreadyHasForm(false);
-    setDocumentState(EMPTY_STATE);
-    setVerificationPhase("idle");
+    patch({
+      procuraSigned: false,
+      alreadyHasForm: false,
+      documentState: EMPTY_STATE,
+      moduloFile: null,
+      verificationPhase: "idle",
+    });
     setAnnouncement("");
   };
 
   const handleAlreadyHasForm = () => {
-    setAlreadyHasForm(true);
+    patch({ alreadyHasForm: true });
     setAnnouncement(UPLOAD_UNLOCKED_MESSAGE);
   };
 
   const handleFileSelect = (file: File) => {
-    setVerificationPhase("idle");
-
     const result = validateFile(file, MAX_SIZE_MB, ACCEPTED_TYPES);
 
     if (!result.valid) {
-      setDocumentState({
-        status: "error",
-        fileName: null,
-        errorMessage: result.errorMessage,
-        errorType: result.errorType,
+      patch({
+        documentState: {
+          status: "error",
+          fileName: null,
+          errorMessage: result.errorMessage,
+          errorType: result.errorType,
+        },
+        moduloFile: file,
+        verificationPhase: "idle",
       });
       return;
     }
 
-    setDocumentState({ status: "loading", fileName: null, errorMessage: null, errorType: null });
+    patch({
+      documentState: { status: "loading", fileName: null, errorMessage: null, errorType: null },
+      moduloFile: file,
+      verificationPhase: "idle",
+    });
 
     simulateUpload(file)
       .then(() => {
-        setDocumentState({
-          status: "success",
-          fileName: file.name,
-          errorMessage: null,
-          errorType: null,
+        patch({
+          documentState: {
+            status: "success",
+            fileName: file.name,
+            errorMessage: null,
+            errorType: null,
+          },
+          verificationPhase: "processing",
         });
         saveDocumentStatus(MODULO_STORAGE_KEY, "success");
-        setVerificationPhase("processing");
-        setTimeout(() => setVerificationPhase("done"), AI_PROCESSING_DURATION_MS);
+        setTimeout(() => patch({ verificationPhase: "done" }), AI_PROCESSING_DURATION_MS);
       })
       .catch((error: Error) =>
-        setDocumentState({
-          status: "error",
-          fileName: null,
-          errorMessage: error.message,
-          errorType: "network",
+        patch({
+          documentState: {
+            status: "error",
+            fileName: null,
+            errorMessage: error.message,
+            errorType: "network",
+          },
         }),
       );
   };
@@ -297,6 +338,7 @@ export default function ProcuraUploadScreen({ onBack }: ProcuraUploadScreenProps
                     label="Modulo firmato"
                     accept={ACCEPTED_TYPES_ATTR}
                     documentState={documentState}
+                    file={moduloFile}
                     onFileSelect={handleFileSelect}
                     previouslyUploaded={previouslyUploaded}
                   />

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import type { Dispatch, SetStateAction } from "react";
 import AiProcessingStatus, {
   AI_PROCESSING_DURATION_MS,
   type AiPhase,
@@ -32,23 +33,48 @@ const EMPTY_STATE: DocumentState = {
   errorType: null,
 };
 
+// Lifted to the wizard so the uploaded files survive navigating away and back.
+export type IdentityUploadState = {
+  documentType: DocumentType;
+  frontState: DocumentState;
+  frontFile: File | null;
+  backState: DocumentState;
+  backFile: File | null;
+  verificationPhase: AiPhase;
+};
+
+export const INITIAL_IDENTITY_UPLOAD: IdentityUploadState = {
+  documentType: "Carta d'identità",
+  frontState: EMPTY_STATE,
+  frontFile: null,
+  backState: EMPTY_STATE,
+  backFile: null,
+  verificationPhase: "idle",
+};
+
 type IdentityDocumentScreenProps = {
+  value: IdentityUploadState;
+  onChange: Dispatch<SetStateAction<IdentityUploadState>>;
   onContinue: () => void;
   onBack: () => void;
 };
 
 export default function IdentityDocumentScreen({
+  value,
+  onChange,
   onContinue,
   onBack,
 }: IdentityDocumentScreenProps) {
-  const [documentType, setDocumentType] = useState<DocumentType>("Carta d'identità");
-  const [frontState, setFrontState] = useState<DocumentState>(EMPTY_STATE);
-  const [backState, setBackState] = useState<DocumentState>(EMPTY_STATE);
+  const { documentType, frontState, frontFile, backState, backFile, verificationPhase } =
+    value;
+
+  const patch = (updates: Partial<IdentityUploadState>) =>
+    onChange((prev) => ({ ...prev, ...updates }));
+
   const [frontPreviouslyUploaded, setFrontPreviouslyUploaded] = useState(false);
   const [backPreviouslyUploaded, setBackPreviouslyUploaded] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [showHint, setShowHint] = useState(false);
-  const [verificationPhase, setVerificationPhase] = useState<AiPhase>("idle");
 
   // A passport only has one relevant page (the one with the photo); every
   // other accepted document has a front and a back.
@@ -68,16 +94,18 @@ export default function IdentityDocumentScreen({
     : frontState.status === "success" && backState.status === "success";
 
   // Once every required page is uploaded, run the AI-check imitation before
-  // enabling the continue button — identical to the Procura screen.
+  // enabling the continue button. On returning to the screen with an already
+  // verified upload restored, don't run it again.
   useEffect(() => {
     if (!allUploaded) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setVerificationPhase("idle");
+      patch({ verificationPhase: "idle" });
       return;
     }
-    setVerificationPhase("processing");
-    const timer = setTimeout(() => setVerificationPhase("done"), AI_PROCESSING_DURATION_MS);
+    if (verificationPhase === "done") return;
+    patch({ verificationPhase: "processing" });
+    const timer = setTimeout(() => patch({ verificationPhase: "done" }), AI_PROCESSING_DURATION_MS);
     return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [allUploaded]);
 
   const isReadyToContinue = verificationPhase === "done";
@@ -85,47 +113,66 @@ export default function IdentityDocumentScreen({
   const handleTypeChange = (type: DocumentType) => {
     if (type === documentType) return;
     // A different document means different pages — start its upload fresh.
-    setDocumentType(type);
-    setFrontState(EMPTY_STATE);
-    setBackState(EMPTY_STATE);
+    patch({
+      documentType: type,
+      frontState: EMPTY_STATE,
+      frontFile: null,
+      backState: EMPTY_STATE,
+      backFile: null,
+      verificationPhase: "idle",
+    });
     setFrontPreviouslyUploaded(false);
     setBackPreviouslyUploaded(false);
   };
 
-  const handleFileSelect =
-    (setState: (state: DocumentState) => void, storageKey: string) =>
+  const updateSlot =
+    (
+      stateField: "frontState" | "backState",
+      fileField: "frontFile" | "backFile",
+      storageKey: string,
+    ) =>
     (file: File) => {
       const result = validateFile(file, MAX_SIZE_MB, ACCEPTED_TYPES);
 
       if (!result.valid) {
-        setState({
-          status: "error",
-          fileName: null,
-          errorMessage: result.errorMessage,
-          errorType: result.errorType,
-        });
+        patch({
+          [stateField]: {
+            status: "error",
+            fileName: null,
+            errorMessage: result.errorMessage,
+            errorType: result.errorType,
+          },
+          [fileField]: file,
+        } as Partial<IdentityUploadState>);
         return;
       }
 
-      setState({ status: "loading", fileName: null, errorMessage: null, errorType: null });
+      patch({
+        [stateField]: { status: "loading", fileName: null, errorMessage: null, errorType: null },
+        [fileField]: file,
+      } as Partial<IdentityUploadState>);
 
       simulateUpload(file)
         .then(() => {
-          setState({
-            status: "success",
-            fileName: file.name,
-            errorMessage: null,
-            errorType: null,
-          });
+          patch({
+            [stateField]: {
+              status: "success",
+              fileName: file.name,
+              errorMessage: null,
+              errorType: null,
+            },
+          } as Partial<IdentityUploadState>);
           saveDocumentStatus(storageKey, "success");
         })
         .catch((error: Error) =>
-          setState({
-            status: "error",
-            fileName: null,
-            errorMessage: error.message,
-            errorType: "network",
-          }),
+          patch({
+            [stateField]: {
+              status: "error",
+              fileName: null,
+              errorMessage: error.message,
+              errorType: "network",
+            },
+          } as Partial<IdentityUploadState>),
         );
     };
 
@@ -178,7 +225,8 @@ export default function IdentityDocumentScreen({
               label={frontLabel}
               accept={ACCEPTED_TYPES_ATTR}
               documentState={frontState}
-              onFileSelect={handleFileSelect(setFrontState, FRONT_STORAGE_KEY)}
+              file={frontFile}
+              onFileSelect={updateSlot("frontState", "frontFile", FRONT_STORAGE_KEY)}
               previouslyUploaded={frontPreviouslyUploaded}
             />
             {!isSinglePage && (
@@ -186,7 +234,8 @@ export default function IdentityDocumentScreen({
                 label="Retro"
                 accept={ACCEPTED_TYPES_ATTR}
                 documentState={backState}
-                onFileSelect={handleFileSelect(setBackState, BACK_STORAGE_KEY)}
+                file={backFile}
+                onFileSelect={updateSlot("backState", "backFile", BACK_STORAGE_KEY)}
                 previouslyUploaded={backPreviouslyUploaded}
               />
             )}

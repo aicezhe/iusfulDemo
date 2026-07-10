@@ -162,7 +162,11 @@ L'errore di rete è normalmente casuale (~10%), per simulare realisticamente una
 
 **Stato.** Un unico oggetto `documents`, con chiave per tipo (idFront/idBack/procura) e la stessa struttura per ciascuno (`{file, status, errorMessage}`). I tre documenti condividono forma dei dati e logica di gestione: un'unica struttura evita duplicazione e permette di riutilizzare lo stesso componente `FileUploadSlot` per tutti e tre.
 
-**Persistenza.** `localStorage` per lo stato di avanzamento (solo i metadati, non i file — non serializzabili). In produzione, con un backend reale, salverei lo stato sul server ad ogni step completato, permettendo il ripristino da qualsiasi dispositivo.
+**Persistenza.** Due livelli distinti, con scopi diversi.
+
+`localStorage` per lo stato di avanzamento tra sessioni (step corrente, documento scaricato, upload completato) — solo metadati, mai i file, perché un oggetto `File` non è serializzabile. In produzione, con un backend reale, salverei lo stato sul server ad ogni step completato, permettendo il ripristino da qualsiasi dispositivo.
+
+I file selezionati durante la sessione (`File` object + anteprima) vivono invece in memoria, sollevati (*lifted state*) dal singolo schermo al componente `UploadWizard`, che resta montato per tutta la sessione. Così tornare indietro con la freccia e poi avanti di nuovo non fa perdere il file già scelto — prima ogni schermo lo teneva nel proprio stato locale, quindi veniva smontato (e il file perso) ad ogni cambio di step. Questo **non** persiste al refresh della pagina: un `File` in memoria non sopravvive a un reload per lo stesso motivo per cui non può stare in `localStorage`. Al refresh l'utente deve ricaricare il file — comportamento invariato, comunicato dal messaggio "Caricato in precedenza — ricarica il file per continuare."
 
 **Stati UI.** Ogni punto di caricamento gestisce esplicitamente i 4 stati richiesti — vuoto/in attesa, caricamento, successo, errore — con differenze visive nette, così che l'utente non sia mai in una situazione ambigua.
 
