@@ -127,7 +127,7 @@ export default function FileUploadSlot({
       ? "bg-dark/[0.08]"
       : status === "error"
         ? "bg-warning/[0.08]"
-        : "bg-[rgba(31,58,50,0.02)]";
+        : "bg-[#faf8f3]";
 
   const canCompress =
     errorType === "too-large" &&

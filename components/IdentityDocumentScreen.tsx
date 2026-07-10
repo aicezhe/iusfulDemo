@@ -6,6 +6,7 @@ import AiProcessingStatus, {
   type AiPhase,
 } from "./AiProcessingStatus";
 import DocumentTypeSelector, { type DocumentType } from "./DocumentTypeSelector";
+import DottedDivider from "./DottedDivider";
 import FileUploadSlot from "./FileUploadSlot";
 import NavArrows from "./NavArrows";
 import SuccessOverlay from "./SuccessOverlay";
@@ -151,13 +152,14 @@ export default function IdentityDocumentScreen({
 
       <div className="flex-1 px-6 pb-6 pt-16">
         <div className="mx-auto flex w-full max-w-md flex-col items-start gap-6 text-left">
-          <div className="flex flex-col items-start gap-2">
+          <div className="flex w-full flex-col items-center gap-2 text-center">
             <h1 className="font-serif text-3xl font-medium leading-snug text-dark sm:text-4xl">
               Documento d&apos;identità
             </h1>
             <p className="text-sm text-muted">
               Ci serve per verificare in modo sicuro chi sta avviando la pratica.
             </p>
+            <DottedDivider className="mt-2 w-full" />
           </div>
 
           <div className="flex w-full flex-col items-start gap-2">

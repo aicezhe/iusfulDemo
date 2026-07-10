@@ -6,13 +6,14 @@ import type { ReactNode } from "react";
 type AccordionProps = {
   title: string;
   children: ReactNode;
+  borderless?: boolean;
 };
 
-export default function Accordion({ title, children }: AccordionProps) {
+export default function Accordion({ title, children, borderless = false }: AccordionProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="w-full border-t border-muted/30 text-left">
+    <div className={`w-full text-left ${borderless ? "" : "border-t border-muted/30"}`}>
       <button
         type="button"
         onClick={() => setIsOpen((open) => !open)}

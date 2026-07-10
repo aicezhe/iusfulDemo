@@ -8,6 +8,7 @@ import AiProcessingStatus, {
   type AiPhase,
 } from "./AiProcessingStatus";
 import CompletionOverlay from "./CompletionOverlay";
+import DottedDivider from "./DottedDivider";
 import FileUploadSlot from "./FileUploadSlot";
 import NavArrows from "./NavArrows";
 import StepIndicator from "./StepIndicator";
@@ -173,7 +174,7 @@ export default function ProcuraUploadScreen({ onBack }: ProcuraUploadScreenProps
   };
 
   return (
-    <div className="animate-fade-in-up relative flex flex-1 flex-col items-center justify-center px-6 py-16 text-center">
+    <div className="animate-fade-in-up relative flex flex-1 flex-col items-start justify-center px-6 py-16 text-left">
       <NavArrows onBack={onBack} onForward={handleContinueClick} />
       {showDownloadConfirmation && <SuccessOverlay message="Scaricato ✓" />}
       {showCompletion && <CompletionOverlay onDismiss={() => setShowCompletion(false)} />}
@@ -182,8 +183,8 @@ export default function ProcuraUploadScreen({ onBack }: ProcuraUploadScreenProps
         {announcement}
       </p>
 
-      <div className="flex w-full max-w-md flex-col items-center gap-8 sm:max-w-lg">
-        <div className="flex flex-col items-center gap-3">
+      <div className="mx-auto flex w-full max-w-md flex-col items-start gap-8 sm:max-w-lg">
+        <div className="flex flex-col items-start gap-3">
           <StepIndicator totalSteps={2} currentStep={2} />
           <h1 className="font-serif text-3xl font-medium leading-snug text-dark sm:text-4xl">
             Procura alle liti
@@ -200,7 +201,7 @@ export default function ProcuraUploadScreen({ onBack }: ProcuraUploadScreenProps
           </p>
         </div>
 
-        <div className="flex w-full flex-col items-center gap-6">
+        <div className="flex w-full flex-col items-start gap-6">
           <StepRow number={1} label="Scarica il modulo" status={stepStatusFor(0)}>
             <a
               href={MODULO_FILE_PATH}
@@ -231,14 +232,14 @@ export default function ProcuraUploadScreen({ onBack }: ProcuraUploadScreenProps
             )}
           </StepRow>
 
-          <StepDivider />
+          <DottedDivider className="w-full max-w-xs sm:max-w-sm" />
 
           <StepRow number={2} label="Firmalo" status={stepStatusFor(1)}>
             <p className="text-sm text-muted">
               Stampalo e firmalo a mano, oppure firmalo direttamente sul telefono.
             </p>
             <div className="w-full max-w-xs sm:max-w-sm">
-              <Accordion title="Come firmo il PDF dal telefono?">
+              <Accordion title="Come firmo il PDF dal telefono?" borderless>
                 Su iPhone: apri il PDF nell&apos;app File, tocca l&apos;icona della
                 penna in alto a destra, poi il &quot;+&quot; e scegli Firma.
                 <br />
@@ -270,7 +271,7 @@ export default function ProcuraUploadScreen({ onBack }: ProcuraUploadScreenProps
             </label>
           </StepRow>
 
-          <StepDivider />
+          <DottedDivider className="w-full max-w-xs sm:max-w-sm" />
 
           <StepRow number={3} label="Carica il modulo firmato" status={stepStatusFor(2)}>
             <div className="w-full">
@@ -309,7 +310,7 @@ export default function ProcuraUploadScreen({ onBack }: ProcuraUploadScreenProps
           </StepRow>
         </div>
 
-        <div className="flex flex-col items-center gap-2">
+        <div className="flex w-full flex-col items-start gap-2">
           <button
             type="button"
             onClick={handleContinueClick}
@@ -351,7 +352,7 @@ type StepRowProps = {
 
 function StepRow({ number, label, status, children }: StepRowProps) {
   return (
-    <div className="flex w-full flex-col items-center gap-3">
+    <div className="flex w-full flex-col items-start gap-3">
       <div className="flex w-full max-w-xs items-center justify-between sm:max-w-sm">
         <span className={`text-sm font-semibold ${STEP_LABEL_COLOR[status]}`}>
           {number}. {label}
@@ -360,14 +361,6 @@ function StepRow({ number, label, status, children }: StepRowProps) {
       </div>
       {children}
     </div>
-  );
-}
-
-function StepDivider() {
-  // Barely-there section separator, echoing the thin dividers between sections
-  // of the Iusful "Fascicolo" card.
-  return (
-    <span className="h-px w-full max-w-xs bg-dark/10 sm:max-w-sm" aria-hidden="true" />
   );
 }
 
