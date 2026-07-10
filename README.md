@@ -1,6 +1,7 @@
 Flusso guidato di caricamento documenti per l'avvio di una pratica legale, progettato attorno a un utente ansioso e poco familiare con il linguaggio giuridico.
 
 **Demo live:** https://iusful-demo-0907.vercel.app
+
 **Repository:** https://github.com/aicezhe/iusfulDemo
 
 Ho scelto di seguire lo stile visivo esistente di Iusful: colori, tipografia, tono invece di inventarne uno nuovo, per dimostrare che il componente si integrerebbe naturalmente nel prodotto reale, non come esercizio isolato. Le decisioni di prodotto e UX (struttura del flusso, testi, gestione degli errori, architettura dello stato, scelte di sicurezza) sono mie, elaborate a partire da un'analisi diretta del prodotto esistente.
