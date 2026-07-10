@@ -48,6 +48,8 @@ Nella raccolta documenti di uno studio legale digitale, i clienti sono spesso an
 
 **PDF pesanti e HEIC.** La compressione via Canvas copre le immagini, non i PDF (un canvas non apre un PDF); le foto HEIC dell'iPhone non sono decodificabili ovunque. Risolverei restando nel browser: pdf.js per rasterizzare e ricomprimere i PDF, libheif in WebAssembly per l'HEIC - stessa scelta di sicurezza già fatta per le immagini, estesa ai formati scoperti.
 
+**Più sperimentazione nel design.** Con più tempo avrei esplorato ulteriori soluzioni visive e micro-interazioni - restando nella stessa filosofia di calma, mai vistosità fine a sé stessa. Il design in questo prototipo è deliberatamente sobrio perché era la scelta giusta per l'utente target; con più margine, mi sarebbe piaciuto testare varianti diverse e vedere quali riducono davvero l'ansia meglio delle altre, non solo per intuizione.
+
 **Altro:** esperienza desktop più ricca (layout affiancati, anteprima accanto all'upload) · più micro-interazioni, stessa filosofia di calma · sostituire il modulo di compressione fisso con uno adattivo che misura prima la % di documenti rifiutati per illeggibilità.
 
 ---
