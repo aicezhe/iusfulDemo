@@ -29,6 +29,8 @@ export default function FileUploadSlot({
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [lastFile, setLastFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [isSlow, setIsSlow] = useState(false);
   const { status, fileName, errorMessage, errorType } = documentState;
   const isLoading = status === "loading";
@@ -42,6 +44,28 @@ export default function FileUploadSlot({
       setIsSlow(false);
     };
   }, [isLoading]);
+
+  // Build an object URL for image previews and always revoke it — on the next
+  // file (replacement) and on unmount — so "Cambia file" never leaks memory.
+  useEffect(() => {
+    if (!lastFile || !lastFile.type.startsWith("image/")) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setPreviewUrl(null);
+      return;
+    }
+    const url = URL.createObjectURL(lastFile);
+    setPreviewUrl(url);
+    return () => URL.revokeObjectURL(url);
+  }, [lastFile]);
+
+  useEffect(() => {
+    if (!isPreviewOpen) return;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setIsPreviewOpen(false);
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isPreviewOpen]);
 
   const openFilePicker = () => {
     if (isLoading) return;
@@ -178,8 +202,37 @@ export default function FileUploadSlot({
 
         {status === "success" && (
           <>
-            <CheckIcon />
+            {previewUrl ? (
+              <button
+                type="button"
+                onClick={() => setIsPreviewOpen(true)}
+                aria-label={`Ingrandisci l'anteprima di ${fileName}`}
+                className="overflow-hidden rounded-lg border border-dark/10"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={previewUrl}
+                  alt={`Anteprima di ${fileName}`}
+                  className="max-h-[120px] w-auto object-contain"
+                />
+              </button>
+            ) : (
+              <PdfGlyph />
+            )}
+
             <p className="max-w-full truncate text-sm font-medium text-dark">{fileName}</p>
+
+            {previewUrl ? (
+              <p className="text-xs text-muted">
+                Riesci a leggere tutti i dati? Se l&apos;immagine è sfocata o
+                scura, riscattala.
+              </p>
+            ) : (
+              lastFile && (
+                <p className="text-xs text-muted">{formatFileSize(lastFile.size)}</p>
+              )
+            )}
+
             <button
               type="button"
               onClick={openFilePicker}
@@ -252,8 +305,37 @@ export default function FileUploadSlot({
         onChange={handleInputChange}
         className="hidden"
       />
+
+      {isPreviewOpen && previewUrl && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-dark/90 p-4"
+          role="dialog"
+          aria-modal="true"
+          onClick={() => setIsPreviewOpen(false)}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={previewUrl}
+            alt={`Anteprima di ${fileName}`}
+            className="max-h-full max-w-full rounded-lg object-contain"
+          />
+          <button
+            type="button"
+            onClick={() => setIsPreviewOpen(false)}
+            aria-label="Chiudi anteprima"
+            className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-bg/90 text-lg text-dark"
+          >
+            ✕
+          </button>
+        </div>
+      )}
     </div>
   );
+}
+
+function formatFileSize(bytes: number): string {
+  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
 function UploadIcon() {
@@ -275,21 +357,26 @@ function UploadIcon() {
   );
 }
 
-function CheckIcon() {
+function PdfGlyph() {
   return (
-    <svg
-      width="28"
-      height="28"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      className="text-dark"
+    <div
+      className="flex h-[120px] w-[92px] flex-col items-center justify-center gap-1.5 rounded-lg border border-dark/15 bg-dark/[0.04]"
       aria-hidden="true"
     >
-      <circle cx="12" cy="12" r="9" />
-      <path d="M8 12.5l2.5 2.5L16 9.5" />
-    </svg>
+      <svg
+        width="26"
+        height="26"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        className="text-dark"
+      >
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+        <path d="M14 2v6h6" />
+      </svg>
+      <span className="text-[10px] font-semibold tracking-wide text-muted">PDF</span>
+    </div>
   );
 }
 
