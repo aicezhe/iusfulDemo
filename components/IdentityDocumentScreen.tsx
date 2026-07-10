@@ -5,7 +5,7 @@ import AiProcessingStatus, {
   AI_PROCESSING_DURATION_MS,
   type AiPhase,
 } from "./AiProcessingStatus";
-import DocumentTypeCycler from "./DocumentTypeCycler";
+import DocumentTypeSelector, { type DocumentType } from "./DocumentTypeSelector";
 import FileUploadSlot from "./FileUploadSlot";
 import NavArrows from "./NavArrows";
 import StepIndicator from "./StepIndicator";
@@ -41,6 +41,7 @@ export default function IdentityDocumentScreen({
   onContinue,
   onBack,
 }: IdentityDocumentScreenProps) {
+  const [documentType, setDocumentType] = useState<DocumentType>("Carta d'identità");
   const [frontState, setFrontState] = useState<DocumentState>(EMPTY_STATE);
   const [backState, setBackState] = useState<DocumentState>(EMPTY_STATE);
   const [frontPreviouslyUploaded, setFrontPreviouslyUploaded] = useState(false);
@@ -49,26 +50,27 @@ export default function IdentityDocumentScreen({
   const [showHint, setShowHint] = useState(false);
   const [verificationPhase, setVerificationPhase] = useState<AiPhase>("idle");
 
-  // Every wizard screen now stays mounted for the whole session (see
-  // UploadWizard), including during the initial server-rendered pass — so
-  // reading localStorage via a lazy useState initializer would mismatch the
-  // server's render (no localStorage there) and break hydration. Read it
-  // client-side after mount instead.
+  // A passport only has one relevant page (the one with the photo); every
+  // other accepted document has a front and a back.
+  const isSinglePage = documentType === "Passaporto";
+  const frontLabel = isSinglePage ? "Pagina con la foto" : "Fronte";
+
   /* eslint-disable react-hooks/set-state-in-effect -- syncing from
-     localStorage, only available client-side; see comment above. */
+     localStorage, only available client-side. */
   useEffect(() => {
     setFrontPreviouslyUploaded(readDocumentStatus(FRONT_STORAGE_KEY) === "success");
     setBackPreviouslyUploaded(readDocumentStatus(BACK_STORAGE_KEY) === "success");
   }, []);
   /* eslint-enable react-hooks/set-state-in-effect */
 
-  const bothUploaded =
-    frontState.status === "success" && backState.status === "success";
+  const allUploaded = isSinglePage
+    ? frontState.status === "success"
+    : frontState.status === "success" && backState.status === "success";
 
-  // Once both sides are uploaded, run the AI-check imitation before enabling
-  // the continue button — identical to the Procura screen.
+  // Once every required page is uploaded, run the AI-check imitation before
+  // enabling the continue button — identical to the Procura screen.
   useEffect(() => {
-    if (!bothUploaded) {
+    if (!allUploaded) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setVerificationPhase("idle");
       return;
@@ -76,9 +78,19 @@ export default function IdentityDocumentScreen({
     setVerificationPhase("processing");
     const timer = setTimeout(() => setVerificationPhase("done"), AI_PROCESSING_DURATION_MS);
     return () => clearTimeout(timer);
-  }, [bothUploaded]);
+  }, [allUploaded]);
 
   const isReadyToContinue = verificationPhase === "done";
+
+  const handleTypeChange = (type: DocumentType) => {
+    if (type === documentType) return;
+    // A different document means different pages — start its upload fresh.
+    setDocumentType(type);
+    setFrontState(EMPTY_STATE);
+    setBackState(EMPTY_STATE);
+    setFrontPreviouslyUploaded(false);
+    setBackPreviouslyUploaded(false);
+  };
 
   const handleFileSelect =
     (setState: (state: DocumentState) => void, storageKey: string) =>
@@ -121,7 +133,7 @@ export default function IdentityDocumentScreen({
     if (isTransitioning) return;
 
     if (!isReadyToContinue) {
-      if (!bothUploaded) setShowHint(true);
+      if (!allUploaded) setShowHint(true);
       return;
     }
 
@@ -136,8 +148,6 @@ export default function IdentityDocumentScreen({
 
       <div className="flex w-full max-w-md flex-col items-center gap-8 sm:max-w-lg">
         <div className="flex flex-col items-center gap-4">
-          <DocumentTypeCycler />
-
           <div className="flex flex-col items-center gap-3">
             <h1 className="font-serif text-3xl font-medium leading-snug text-dark sm:text-4xl">
               Documento d&apos;identità
@@ -149,23 +159,38 @@ export default function IdentityDocumentScreen({
               sta avviando la pratica.
             </p>
           </div>
+
+          <div className="flex flex-col items-center gap-2">
+            <p className="text-xs font-medium uppercase tracking-wide text-muted">
+              Quale documento carichi?
+            </p>
+            <DocumentTypeSelector value={documentType} onChange={handleTypeChange} />
+          </div>
         </div>
 
-        <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2">
+        <div
+          className={
+            isSinglePage
+              ? "w-full max-w-xs"
+              : "grid w-full grid-cols-1 gap-4 sm:grid-cols-2"
+          }
+        >
           <FileUploadSlot
-            label="Fronte"
+            label={frontLabel}
             accept={ACCEPTED_TYPES_ATTR}
             documentState={frontState}
             onFileSelect={handleFileSelect(setFrontState, FRONT_STORAGE_KEY)}
             previouslyUploaded={frontPreviouslyUploaded}
           />
-          <FileUploadSlot
-            label="Retro"
-            accept={ACCEPTED_TYPES_ATTR}
-            documentState={backState}
-            onFileSelect={handleFileSelect(setBackState, BACK_STORAGE_KEY)}
-            previouslyUploaded={backPreviouslyUploaded}
-          />
+          {!isSinglePage && (
+            <FileUploadSlot
+              label="Retro"
+              accept={ACCEPTED_TYPES_ATTR}
+              documentState={backState}
+              onFileSelect={handleFileSelect(setBackState, BACK_STORAGE_KEY)}
+              previouslyUploaded={backPreviouslyUploaded}
+            />
+          )}
         </div>
 
         {verificationPhase !== "idle" && <AiProcessingStatus phase={verificationPhase} />}
@@ -174,7 +199,7 @@ export default function IdentityDocumentScreen({
           <button
             type="button"
             onClick={handleButtonClick}
-            onMouseEnter={() => !bothUploaded && setShowHint(true)}
+            onMouseEnter={() => !allUploaded && setShowHint(true)}
             onMouseLeave={() => setShowHint(false)}
             aria-disabled={!isReadyToContinue}
             className={`flex w-[85%] items-center justify-center rounded-full px-10 py-3 text-base font-semibold leading-none shadow-sm transition-colors sm:w-auto sm:px-14 ${
@@ -186,7 +211,7 @@ export default function IdentityDocumentScreen({
             Avanti
           </button>
 
-          {showHint && !bothUploaded && (
+          {showHint && !allUploaded && (
             <p className="text-xs text-muted">
               Carica il documento prima di continuare
             </p>
