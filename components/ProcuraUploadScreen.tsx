@@ -367,7 +367,7 @@ export default function ProcuraUploadScreen({ value, onChange, onBack }: Procura
             onMouseEnter={() => !isReadyToContinue && setShowContinueHint(true)}
             onMouseLeave={() => setShowContinueHint(false)}
             aria-disabled={!isReadyToContinue}
-            className={`flex w-[85%] items-center justify-center rounded-full px-10 py-3 text-base font-semibold leading-none shadow-sm transition-colors sm:w-auto sm:px-14 ${
+            className={`flex min-h-[48px] w-full items-center justify-center rounded-full px-10 text-base font-semibold leading-none shadow-sm transition-colors ${
               isReadyToContinue
                 ? "bg-dark text-text-light hover:bg-dark/90"
                 : "cursor-not-allowed bg-dark/40 text-text-light"
