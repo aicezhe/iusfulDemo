@@ -168,7 +168,7 @@ export default function IdentityDocumentScreen({
           <div
             className={
               isSinglePage
-                ? "w-full max-w-xs"
+                ? "w-full"
                 : "grid w-full grid-cols-1 gap-4 sm:grid-cols-2"
             }
           >

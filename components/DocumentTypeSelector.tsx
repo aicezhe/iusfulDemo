@@ -51,10 +51,10 @@ export default function DocumentTypeSelector({ value, onChange }: DocumentTypeSe
             onClick={() => onChange(type)}
             onKeyDown={(event) => handleKeyDown(event, index)}
             style={{ borderWidth: isSelected ? "1.5px" : "1px" }}
-            className={`flex min-h-[44px] items-center justify-center gap-1.5 rounded-full border-solid bg-transparent px-3 text-center text-xs leading-tight transition-colors ${
+            className={`flex min-h-[44px] items-center justify-center gap-1.5 rounded-full border-solid px-3 text-center text-xs leading-tight transition-colors ${
               isSelected
-                ? "border-dark font-medium text-dark"
-                : "border-muted/40 font-normal text-muted hover:border-dark/30"
+                ? "border-dark bg-dark/10 font-semibold text-dark"
+                : "border-muted/40 bg-transparent font-normal text-muted hover:border-dark/30"
             }`}
           >
             {isSelected && <CheckIcon />}
