@@ -17,7 +17,7 @@ import { simulateUpload } from "@/lib/simulateUpload";
 import { readDocumentStatus, saveDocumentStatus } from "@/lib/localStorage";
 import type { DocumentState } from "@/types/upload";
 
-const ACCEPTED_TYPES = ["image/jpeg", "application/pdf"];
+const ACCEPTED_TYPES = ["image/jpeg", "image/png", "application/pdf"];
 const ACCEPTED_TYPES_ATTR = ACCEPTED_TYPES.join(",");
 const MAX_SIZE_MB = 5;
 // A real static file (served from /public) linked via a plain anchor is the

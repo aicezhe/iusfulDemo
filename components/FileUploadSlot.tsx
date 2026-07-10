@@ -105,7 +105,9 @@ export default function FileUploadSlot({
         ? "bg-warning/[0.08]"
         : "bg-dark/[0.03]";
 
-  const canCompress = errorType === "too-large" && lastFile?.type === "image/jpeg";
+  const canCompress =
+    errorType === "too-large" &&
+    (lastFile?.type === "image/jpeg" || lastFile?.type === "image/png");
 
   return (
     <div className="flex flex-col gap-2">
@@ -155,7 +157,7 @@ export default function FileUploadSlot({
               </button>
             </div>
 
-            <p className="text-xs text-muted">PDF o JPEG · Max {MAX_SIZE_MB}MB</p>
+            <p className="text-xs text-muted">PDF, JPEG o PNG · Max {MAX_SIZE_MB}MB</p>
             {previouslyUploaded && (
               <p className="text-xs text-muted">
                 Caricato in precedenza — ricarica il file per continuare.
@@ -210,14 +212,14 @@ export default function FileUploadSlot({
             >
               Sfoglia
             </button>
-            <p className="text-xs text-muted">PDF o JPEG · Max {MAX_SIZE_MB}MB</p>
+            <p className="text-xs text-muted">PDF, JPEG o PNG · Max {MAX_SIZE_MB}MB</p>
 
             {errorType === "invalid-format" && (
               <Accordion title="Il file non è JPEG o PDF? Controlla qui.">
                 Guarda il nome del file: dopo il punto c&apos;è il formato. Ad esempio
-                &quot;documento.pdf&quot; è un PDF, &quot;foto.jpg&quot; è una foto JPEG.
-                Se vedi un&apos;altra estensione (.png, .heic, .doc...), devi convertirlo
-                prima di caricarlo.
+                &quot;documento.pdf&quot; è un PDF, &quot;foto.jpg&quot; è una foto JPEG,
+                &quot;foto.png&quot; è una foto PNG. Se vedi un&apos;altra estensione
+                (.heic, .doc, .txt...), devi convertirlo prima di caricarlo.
                 <FileExampleDiagram highlight="format" />
               </Accordion>
             )}

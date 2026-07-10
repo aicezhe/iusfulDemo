@@ -133,12 +133,14 @@ Le stesse linee con punto, oltre che nelle schermate di benvenuto, separano i **
 
 | Errore | Gestione |
 |---|---|
-| Formato non valido | Messaggio con l'estensione reale caricata; solo PDF o JPEG |
-| File > 5MB | Compressione automatica lato client per le immagini; alternativa suggerita per i PDF |
+| Formato non valido | Messaggio con l'estensione reale caricata; PDF, JPEG o PNG |
+| File > 5MB | Compressione lato client per le immagini (pulsante "Comprimi"); alternativa suggerita per i PDF |
 | File danneggiato/vuoto | Messaggio chiaro, invito a riprovare |
 | Errore di rete (simulato) | ~10% casuale; deterministico se il nome file contiene "test-error" |
 | Procedere senza aver caricato | Impedito strutturalmente (pulsante disabilitato) |
 | Doppio click durante il caricamento | Elementi disabilitati durante lo stato di loading |
+
+Il brief indicava i formati `es. PDF/JPEG`: ho letto `es.` come *esemplificativo*, non esaustivo, e ho incluso anche il **PNG** — è il formato prodotto da screenshot su Android e da molti scanner, quindi rifiutarlo punirebbe l'utente che segue la spec alla lettera.
 
 ### Come testare i diversi stati
 
