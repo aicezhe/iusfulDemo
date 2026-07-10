@@ -191,7 +191,21 @@ L'ho **deliberatamente esclusa**. Inviare un documento d'identità a un servizio
 
 ## Se avessi avuto più tempo
 
-**Backend reale e verifica AI vera.** Oggi la verifica del documento è simulata, per rendere leggibile il flusso completo. Con un backend, userei un modello di visione (OCR + comprensione strutturata) per estrarre i campi dal documento caricato e confrontarli con regole di base già presenti nel database: formato dei documenti italiani validi, campi obbligatori attesi, coerenza tra fronte e retro, data di scadenza. Il sistema segnalerebbe automaticamente un documento scaduto, una pagina sbagliata o una scansione illeggibile **prima** che arrivi all'avvocato — riducendo i tempi di revisione e intercettando gli errori evidenti. Sempre come filtro che precede la revisione dell'avvocato, mai come suo sostituto.
+**Assistenza allo scatto: correggere la foto prima che venga scattata, non dopo.**
+
+Oggi la validazione avviene dopo il caricamento: l'utente scatta, carica, e solo allora scopre che la foto è sfocata, scura o tagliata. È correzione, non prevenzione — l'opposto del principio che ho seguito in tutto il resto del flusso.
+
+Con più tempo porterei la fotocamera dentro il flusso (`getUserMedia`) invece di delegarla all'app di sistema, e analizzerei i fotogrammi in tempo reale, prima dello scatto:
+
+- **Bordi e inquadratura** — riconoscimento del rettangolo del documento: rientra tutto nell'inquadratura, nessun angolo tagliato, distanza corretta
+- **Messa a fuoco** — varianza del laplaciano sul fotogramma, per intercettare la sfocatura prima che diventi un file illeggibile
+- **Luce e riflessi** — istogramma di luminanza: zone bruciate dal flash sulla banda plastificata, foto troppo scura
+
+Il feedback compare sopra l'immagine mentre l'utente inquadra — *«Avvicinati»*, *«Troppo buio»*, *«Un angolo esce dall'inquadratura»* — e l'otturatore si attiva solo quando l'inquadratura è corretta. L'utente non riceve un errore: riceve una conferma, mentre sta ancora facendo la cosa. È lo stesso principio dei pulsanti disabilitati, applicato al gesto invece che al form.
+
+**Dove sta il confine col backend.** I controlli geometrici e di qualità — bordi, sfocatura, luce — sono euristiche leggere, eseguibili interamente nel browser su canvas: nessun fotogramma lascia il dispositivo, coerentemente con la scelta fatta per la compressione. Il riconoscimento del *tipo* di documento e la verifica che i campi attesi siano effettivamente leggibili richiedono invece un modello di visione lato server. Lo terrei come secondo livello, dopo lo scatto e prima dell'invio all'avvocato — non durante l'inquadratura, dove la latenza di rete renderebbe il feedback inutile.
+
+**Cosa misurerei prima di costruirlo.** La fotocamera nativa del telefono ha HDR, stabilizzazione e autofocus migliori di quelli accessibili via `getUserMedia`: sostituirla significa scambiare qualità dell'immagine con qualità della guida. Non darei per scontato che il baratto convenga. Misurerei prima la percentuale di documenti rifiutati per illeggibilità con lo scatto nativo; se il problema è l'inquadratura, la guida in tempo reale vince. Se è la messa a fuoco, la soluzione giusta resta lo scatto nativo, seguito da un controllo immediato sulla stessa schermata — con la possibilità di riscattare senza uscire dal flusso.
 
 **Metriche da tracciare per capire dove i clienti si bloccano:**
 - **Drop-off per step** — su quale schermata si abbandona di più (identifica il punto di attrito)
@@ -206,7 +220,10 @@ Queste metriche insieme dicono non solo *dove* ci si blocca, ma *perché*: un dr
 
 **Più animazioni e micro-interazioni**, mantenendo la stessa filosofia: mai vistose, sempre al servizio della calma e della comprensione di ciò che sta accadendo.
 
-**Strumenti interni per la gestione dei file** — conversione e compressione proprietarie, invece di dipendere da servizi esterni. Risolverebbe insieme il problema della sicurezza (i file non escono mai dall'ecosistema Iusful) e quello dell'usabilità (l'utente non deve uscire dal flusso per sistemare un file).
+**PDF pesanti e foto HEIC: le due lacune che restano.**
+La compressione lato client via Canvas copre le immagini, non i PDF — un canvas non sa aprire un PDF. Oggi un PDF oltre i 5MB resta un vicolo cieco, mitigato solo da un suggerimento ("fotografa il documento invece di allegarlo"). Allo stesso modo, le foto HEIC dell'iPhone sono decodificabili da Safari ma non da tutti i browser.
+
+Con più tempo coprirei entrambi i casi restando nel browser: rasterizzazione delle pagine con pdf.js e ricomposizione a risoluzione controllata per i PDF, libheif compilata in WebAssembly per l'HEIC. Non sarebbe una funzionalità in più: è la stessa scelta di sicurezza già fatta per le immagini, estesa ai due formati che oggi restano scoperti — il file continua a non lasciare mai il dispositivo dell'utente.
 
 **Possibilità di tornare indietro** e sostituire un file già caricato in qualsiasi punto del flusso, con persistenza garantita del progresso.
 
