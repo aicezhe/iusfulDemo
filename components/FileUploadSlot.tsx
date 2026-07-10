@@ -154,7 +154,7 @@ export default function FileUploadSlot({
               <button
                 type="button"
                 onClick={openCamera}
-                className="flex min-h-[44px] w-full items-center justify-center gap-2 rounded-full bg-accent px-6 text-sm font-semibold text-dark transition-colors hover:bg-accent/90"
+                className="flex min-h-[44px] w-full items-center justify-center gap-2 rounded-full border border-accent bg-bg px-6 text-sm font-semibold text-accent shadow-sm transition-colors hover:bg-accent/5"
               >
                 <CameraIcon />
                 Scatta una foto
@@ -162,7 +162,7 @@ export default function FileUploadSlot({
               <button
                 type="button"
                 onClick={openFilePicker}
-                className="text-sm text-muted underline underline-offset-2 transition-colors hover:text-dark"
+                className="text-sm text-accent underline underline-offset-2 transition-colors hover:text-accent/80"
               >
                 Scegli un file
               </button>
@@ -369,7 +369,7 @@ function CameraIcon() {
       strokeWidth="1.8"
       strokeLinecap="round"
       strokeLinejoin="round"
-      className="shrink-0 text-dark"
+      className="shrink-0"
       aria-hidden="true"
     >
       <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
