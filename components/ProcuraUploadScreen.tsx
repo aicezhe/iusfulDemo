@@ -211,7 +211,7 @@ export default function ProcuraUploadScreen({ onBack }: ProcuraUploadScreenProps
               className={`inline-flex items-center justify-center rounded-full px-8 py-3 text-base font-semibold leading-none shadow-sm transition-colors ${
                 hasDownloaded
                   ? "border border-dark/20 text-dark hover:bg-dark/5"
-                  : "bg-accent text-dark hover:bg-accent/90"
+                  : "bg-accent text-text-light hover:bg-accent/90"
               }`}
             >
               {hasDownloaded ? "Scaricato ✓ — scarica di nuovo" : "Scarica il modulo"}
@@ -353,7 +353,7 @@ function StepRow({ number, label, status, children }: StepRowProps) {
   return (
     <div className="flex w-full flex-col items-center gap-3">
       <div className="flex w-full max-w-xs items-center justify-between sm:max-w-sm">
-        <span className={`text-sm font-medium ${STEP_LABEL_COLOR[status]}`}>
+        <span className={`text-sm font-semibold ${STEP_LABEL_COLOR[status]}`}>
           {number}. {label}
         </span>
         {status === "completed" && <CheckIcon />}
