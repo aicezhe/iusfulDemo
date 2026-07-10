@@ -43,6 +43,7 @@ type ProcuraUploadScreenProps = {
 
 export default function ProcuraUploadScreen({ onBack }: ProcuraUploadScreenProps) {
   const [hasDownloaded, setHasDownloaded] = useState(false);
+  const [alreadyHasForm, setAlreadyHasForm] = useState(false);
   const [showDownloadConfirmation, setShowDownloadConfirmation] = useState(false);
   const [documentState, setDocumentState] = useState<DocumentState>(EMPTY_STATE);
   const [previouslyUploaded, setPreviouslyUploaded] = useState(false);
@@ -64,12 +65,18 @@ export default function ProcuraUploadScreen({ onBack }: ProcuraUploadScreenProps
 
   const isReadyToContinue = verificationPhase === "done";
 
+  // The upload slot opens once the user has the signed form in hand — either
+  // by downloading it here, or by declaring they already have it.
+  const canUpload = hasDownloaded || alreadyHasForm;
+
   // Three-state progress for the sub-steps, derived from real progress so it
   // can never drift out of sync: a step is "completed" once its work is done,
   // "active" if it's the first not-yet-done step, "upcoming" otherwise.
   const stepCompletion = [
-    hasDownloaded,
-    documentState.status === "loading" || documentState.status === "success",
+    canUpload,
+    alreadyHasForm ||
+      documentState.status === "loading" ||
+      documentState.status === "success",
     verificationPhase === "done",
   ];
   const activeStepIndex = stepCompletion.findIndex((done) => !done);
@@ -187,6 +194,15 @@ export default function ProcuraUploadScreen({ onBack }: ProcuraUploadScreenProps
               Su telefono il modulo si apre in una nuova scheda: salvalo con
               l&apos;icona Condividi, poi torna qui per caricarlo.
             </p>
+            {!canUpload && (
+              <button
+                type="button"
+                onClick={() => setAlreadyHasForm(true)}
+                className="mt-1 text-xs text-muted underline underline-offset-2 transition-colors hover:text-dark"
+              >
+                Ho già il modulo firmato
+              </button>
+            )}
           </StepRow>
 
           <StepDivider />
@@ -217,7 +233,7 @@ export default function ProcuraUploadScreen({ onBack }: ProcuraUploadScreenProps
               )}
 
               <div className="relative">
-                {!hasDownloaded && (
+                {!canUpload && (
                   <div
                     className="absolute inset-0 z-10 cursor-not-allowed"
                     onMouseEnter={() => setShowUploadHint(true)}
@@ -225,7 +241,7 @@ export default function ProcuraUploadScreen({ onBack }: ProcuraUploadScreenProps
                     onClick={() => setShowUploadHint(true)}
                   />
                 )}
-                <div className={!hasDownloaded ? "opacity-50" : ""}>
+                <div className={!canUpload ? "opacity-50" : ""}>
                   <FileUploadSlot
                     label="Modulo firmato"
                     accept={ACCEPTED_TYPES_ATTR}
@@ -236,7 +252,7 @@ export default function ProcuraUploadScreen({ onBack }: ProcuraUploadScreenProps
                 </div>
               </div>
 
-              {!hasDownloaded && showUploadHint && (
+              {!canUpload && showUploadHint && (
                 <p className="mt-2 text-xs text-muted">
                   Scarica il modulo prima di caricarlo
                 </p>
