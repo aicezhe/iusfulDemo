@@ -58,8 +58,8 @@ export default function CompletionOverlay({ onDismiss }: CompletionOverlayProps)
         </ul>
 
         <p className="mt-6 text-sm leading-relaxed text-muted">
-          La tua pratica è pronta per essere lavorata da un avvocato. Riceverai
-          una risposta entro poche ore.
+          Un avvocato prenderà in carico la tua pratica e ti contatterà appena
+          possibile.
         </p>
 
         <button

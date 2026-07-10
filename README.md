@@ -91,7 +91,7 @@ La differenza non è solo cromatica ma strutturale: in nessuno dei quattro stati
 
 ### Verifica AI simulata
 
-Dopo il caricamento di ciascun documento mostro *"I documenti vengono elaborati dall'IA…"*, poi *"Documento verificato"*. Non affermo mai che il documento sia *"verificato come firmato"*: nella demo quel controllo non esiste.
+Dopo il caricamento di ciascun documento mostro *"I documenti vengono elaborati dall'IA…"*, poi *"Documento ricevuto"*. Non affermo mai che il documento sia *"verificato come firmato"*: nella demo quel controllo non esiste.
 
 La simulazione non è un placeholder lasciato a metà — serve a rendere leggibile l'intero flusso del wizard, dal caricamento alla conferma, così che chi valuta il prototipo veda il percorso completo che l'utente vivrebbe. Non promette una funzionalità che non c'è.
 
@@ -164,7 +164,7 @@ L'errore di rete è normalmente casuale (~10%), per simulare realisticamente una
 
 **Stati UI.** Ogni punto di caricamento gestisce esplicitamente i 4 stati richiesti — vuoto/in attesa, caricamento, successo, errore — con differenze visive nette, così che l'utente non sia mai in una situazione ambigua.
 
-**Verifica AI simulata.** Dopo il caricamento di ciascun documento mostro "I documenti vengono elaborati dall'IA…", poi "Documento verificato". Non affermo mai che il documento sia stato *"verificato come firmato"*: nella demo quel controllo non avviene. La simulazione serve a rendere leggibile il flusso completo del wizard, non a promettere una funzionalità inesistente.
+**Verifica AI simulata.** Dopo il caricamento di ciascun documento mostro "I documenti vengono elaborati dall'IA…", poi "Documento ricevuto". Non affermo mai che il documento sia stato *"verificato come firmato"*: nella demo quel controllo non avviene. La simulazione serve a rendere leggibile il flusso completo del wizard, non a promettere una funzionalità inesistente.
 
 **Test.** Unit test sulla logica di validazione file (`lib/fileValidation.ts`) — pura logica, senza side-effect, la parte più critica e più facilmente testabile. Non ho coperto l'intero progetto: ho preferito concentrare il tempo sull'esperienza utente, che era il focus richiesto.
 

@@ -18,7 +18,7 @@ export default function AiProcessingStatus({ phase }: AiProcessingStatusProps) {
   }
 
   if (phase === "done") {
-    return <p className="text-sm font-semibold text-dark">✓ Documento verificato</p>;
+    return <p className="text-sm font-semibold text-dark">✓ Documento ricevuto</p>;
   }
 
   return null;
