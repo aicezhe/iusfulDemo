@@ -1,5 +1,3 @@
-<img width="1649" height="804" alt="image" src="https://github.com/user-attachments/assets/2479651b-1590-40db-a7aa-76f155d30209" /># Iusful: Document Upload Wizard
-
 Flusso guidato di caricamento documenti per l'avvio di una pratica legale, progettato attorno a un utente ansioso e poco familiare con il linguaggio giuridico.
 
 **Demo live:** https://iusful-demo-0907.vercel.app
