@@ -360,7 +360,7 @@ export default function ProcuraUploadScreen({ value, onChange, onBack }: Procura
           </StepRow>
         </div>
 
-        <div className="flex w-full flex-col items-start gap-2">
+        <div className="flex w-full flex-col items-center gap-2">
           <button
             type="button"
             onClick={handleContinueClick}
