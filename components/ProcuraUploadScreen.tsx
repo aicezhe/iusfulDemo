@@ -184,7 +184,7 @@ export default function ProcuraUploadScreen({ onBack }: ProcuraUploadScreenProps
       </p>
 
       <div className="mx-auto flex w-full max-w-md flex-col items-start gap-8 sm:max-w-lg">
-        <div className="flex flex-col items-start gap-3">
+        <div className="flex w-full flex-col items-center gap-3 text-center">
           <StepIndicator totalSteps={2} currentStep={2} />
           <h1 className="font-serif text-3xl font-medium leading-snug text-dark sm:text-4xl">
             Procura alle liti
@@ -199,6 +199,8 @@ export default function ProcuraUploadScreen({ onBack }: ProcuraUploadScreenProps
           <p className="max-w-sm text-sm text-muted">
             Ci autorizza a seguire la tua pratica in tribunale.
           </p>
+
+          <DottedDivider className="mt-2 w-full" />
         </div>
 
         <div className="flex w-full flex-col items-start gap-6">
@@ -232,7 +234,10 @@ export default function ProcuraUploadScreen({ onBack }: ProcuraUploadScreenProps
             )}
           </StepRow>
 
-          <DottedDivider className="w-full max-w-xs sm:max-w-sm" />
+          <span
+            className="h-px w-full max-w-xs bg-dark/10 sm:max-w-sm"
+            aria-hidden="true"
+          />
 
           <StepRow number={2} label="Firmalo" status={stepStatusFor(1)}>
             <p className="text-sm text-muted">
@@ -271,7 +276,10 @@ export default function ProcuraUploadScreen({ onBack }: ProcuraUploadScreenProps
             </label>
           </StepRow>
 
-          <DottedDivider className="w-full max-w-xs sm:max-w-sm" />
+          <span
+            className="h-px w-full max-w-xs bg-dark/10 sm:max-w-sm"
+            aria-hidden="true"
+          />
 
           <StepRow number={3} label="Carica il modulo firmato" status={stepStatusFor(2)}>
             <div className="w-full">

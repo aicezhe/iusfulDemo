@@ -163,7 +163,7 @@ export default function IdentityDocumentScreen({
           </div>
 
           <div className="flex w-full flex-col items-start gap-2">
-            <p className="text-[13px] font-medium text-dark">Quale documento carichi?</p>
+            <p className="font-serif text-base italic text-accent">Quale documento carichi?</p>
             <DocumentTypeSelector value={documentType} onChange={handleTypeChange} />
           </div>
 
