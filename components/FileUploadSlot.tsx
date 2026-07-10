@@ -127,7 +127,7 @@ export default function FileUploadSlot({
       ? "bg-dark/[0.08]"
       : status === "error"
         ? "bg-warning/[0.08]"
-        : "bg-dark/[0.03]";
+        : "bg-[rgba(31,58,50,0.02)]";
 
   const canCompress =
     errorType === "too-large" &&
@@ -135,7 +135,7 @@ export default function FileUploadSlot({
 
   return (
     <div className="flex flex-col gap-2">
-      <span className="text-xs font-medium uppercase tracking-wide text-muted">
+      <span className="text-left text-[11px] font-medium uppercase tracking-wide text-muted">
         {label}
       </span>
 
@@ -148,29 +148,30 @@ export default function FileUploadSlot({
       >
         {status === "empty" && (
           <>
-            <UploadIcon />
-
-            {/* Mobile-first (touch): the phone camera is the primary path.
-                Hidden on pointer devices, where drag-and-drop takes over. */}
-            <div className="flex flex-col items-center gap-2 pointer-fine:hidden">
+            {/* Mobile-first (touch): the phone camera is the primary path. No
+                upload icon here — it signified drag, absent on touch. */}
+            <div className="flex w-full flex-col items-center gap-2 pointer-fine:hidden">
               <button
                 type="button"
                 onClick={openCamera}
-                className="flex min-h-[44px] items-center rounded-full bg-accent px-6 text-sm font-semibold text-dark transition-colors hover:bg-accent/90"
+                className="flex min-h-[44px] w-full items-center justify-center gap-2 rounded-full bg-accent px-6 text-sm font-semibold text-dark transition-colors hover:bg-accent/90"
               >
+                <CameraIcon />
                 Scatta una foto
               </button>
               <button
                 type="button"
                 onClick={openFilePicker}
-                className="flex min-h-[44px] items-center rounded-full border border-dark/20 px-6 text-sm font-medium text-dark transition-colors hover:bg-dark/5"
+                className="text-sm text-muted underline underline-offset-2 transition-colors hover:text-dark"
               >
                 Scegli un file
               </button>
             </div>
 
-            {/* Pointer devices (mouse/trackpad): keep drag-and-drop. */}
+            {/* Pointer devices (mouse/trackpad): keep drag-and-drop, with the
+                icon that signifies it. */}
             <div className="hidden flex-col items-center gap-2 pointer-fine:flex">
+              <UploadIcon />
               <p className="text-sm text-text">Trascina qui il file oppure</p>
               <button
                 type="button"
@@ -353,6 +354,26 @@ function UploadIcon() {
       <path d="M12 16V4" />
       <path d="M7 9l5-5 5 5" />
       <path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3" />
+    </svg>
+  );
+}
+
+function CameraIcon() {
+  return (
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="shrink-0 text-dark"
+      aria-hidden="true"
+    >
+      <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+      <circle cx="12" cy="13" r="4" />
     </svg>
   );
 }

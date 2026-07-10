@@ -1,5 +1,7 @@
 "use client";
 
+import { useRef } from "react";
+
 export const DOCUMENT_TYPES = [
   "Carta d'identità",
   "Passaporto",
@@ -15,33 +17,70 @@ type DocumentTypeSelectorProps = {
 };
 
 // A real selector — the previous version was a decorative wheel that scrolled
-// on its own and selected nothing. Mutually-exclusive options, so a radiogroup.
+// on its own and selected nothing. Mutually-exclusive options, so a radiogroup
+// with roving tabindex and arrow-key navigation.
 export default function DocumentTypeSelector({ value, onChange }: DocumentTypeSelectorProps) {
+  const buttonsRef = useRef<(HTMLButtonElement | null)[]>([]);
+
+  const handleKeyDown = (event: React.KeyboardEvent, index: number) => {
+    const forward = event.key === "ArrowRight" || event.key === "ArrowDown";
+    const backward = event.key === "ArrowLeft" || event.key === "ArrowUp";
+    if (!forward && !backward) return;
+
+    event.preventDefault();
+    const delta = forward ? 1 : -1;
+    const nextIndex = (index + delta + DOCUMENT_TYPES.length) % DOCUMENT_TYPES.length;
+    onChange(DOCUMENT_TYPES[nextIndex]);
+    buttonsRef.current[nextIndex]?.focus();
+  };
+
   return (
-    <div
-      role="radiogroup"
-      aria-label="Tipo di documento"
-      className="flex w-full max-w-[260px] flex-col gap-1.5"
-    >
-      {DOCUMENT_TYPES.map((type) => {
+    <div role="radiogroup" aria-label="Tipo di documento" className="grid w-full grid-cols-2 gap-2">
+      {DOCUMENT_TYPES.map((type, index) => {
         const isSelected = type === value;
         return (
           <button
             key={type}
+            ref={(element) => {
+              buttonsRef.current[index] = element;
+            }}
             type="button"
             role="radio"
             aria-checked={isSelected}
+            tabIndex={isSelected ? 0 : -1}
             onClick={() => onChange(type)}
-            className={`rounded-full px-4 py-2 text-sm transition-colors ${
+            onKeyDown={(event) => handleKeyDown(event, index)}
+            style={{ borderWidth: isSelected ? "1.5px" : "1px" }}
+            className={`flex min-h-[44px] items-center justify-center gap-1.5 rounded-full border-solid bg-transparent px-3 text-center text-xs leading-tight transition-colors ${
               isSelected
-                ? "bg-dark font-semibold text-text-light"
-                : "text-muted hover:bg-dark/5"
+                ? "border-dark font-medium text-dark"
+                : "border-muted/40 font-normal text-muted hover:border-dark/30"
             }`}
           >
+            {isSelected && <CheckIcon />}
             {type}
           </button>
         );
       })}
     </div>
+  );
+}
+
+function CheckIcon() {
+  return (
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="shrink-0 text-dark"
+      aria-hidden="true"
+    >
+      <path d="M5 12.5l4.5 4.5L19 7" />
+    </svg>
   );
 }

@@ -8,7 +8,6 @@ import AiProcessingStatus, {
 import DocumentTypeSelector, { type DocumentType } from "./DocumentTypeSelector";
 import FileUploadSlot from "./FileUploadSlot";
 import NavArrows from "./NavArrows";
-import StepIndicator from "./StepIndicator";
 import SuccessOverlay from "./SuccessOverlay";
 import { validateFile } from "@/lib/fileValidation";
 import { simulateUpload } from "@/lib/simulateUpload";
@@ -142,67 +141,79 @@ export default function IdentityDocumentScreen({
   };
 
   return (
-    <div className="animate-fade-in-up relative flex flex-1 flex-col items-center justify-center px-6 py-16 text-center">
-      <NavArrows onBack={onBack} onForward={handleButtonClick} />
+    <div className="animate-fade-in-up relative flex min-h-dvh flex-col bg-bg">
+      <NavArrows
+        onBack={onBack}
+        onForward={handleButtonClick}
+        centerLabel="Documento 1 di 2"
+      />
       {isTransitioning && <SuccessOverlay message="Tutto corretto, grazie!" />}
 
-      <div className="flex w-full max-w-md flex-col items-center gap-8 sm:max-w-lg">
-        <div className="flex flex-col items-center gap-4">
-          <div className="flex flex-col items-center gap-3">
+      <div className="flex-1 px-6 pb-6 pt-16">
+        <div className="mx-auto flex w-full max-w-md flex-col items-start gap-6 text-left">
+          <div className="flex flex-col items-start gap-2">
             <h1 className="font-serif text-3xl font-medium leading-snug text-dark sm:text-4xl">
               Documento d&apos;identità
             </h1>
-            <StepIndicator totalSteps={2} currentStep={1} />
-            <p className="max-w-sm text-sm text-muted">
-              Il documento d&apos;identità è un documento ufficiale che
-              dimostra chi sei. Ci serve per verificare in modo sicuro chi
-              sta avviando la pratica.
+            <p className="text-sm text-muted">
+              Ci serve per verificare in modo sicuro chi sta avviando la pratica.
             </p>
           </div>
 
-          <div className="flex flex-col items-center gap-2">
-            <p className="text-xs font-medium uppercase tracking-wide text-muted">
-              Quale documento carichi?
-            </p>
+          <div className="flex w-full flex-col items-start gap-2">
+            <p className="text-[13px] font-medium text-dark">Quale documento carichi?</p>
             <DocumentTypeSelector value={documentType} onChange={handleTypeChange} />
           </div>
-        </div>
 
-        <div
-          className={
-            isSinglePage
-              ? "w-full max-w-xs"
-              : "grid w-full grid-cols-1 gap-4 sm:grid-cols-2"
-          }
-        >
-          <FileUploadSlot
-            label={frontLabel}
-            accept={ACCEPTED_TYPES_ATTR}
-            documentState={frontState}
-            onFileSelect={handleFileSelect(setFrontState, FRONT_STORAGE_KEY)}
-            previouslyUploaded={frontPreviouslyUploaded}
-          />
-          {!isSinglePage && (
+          <div
+            className={
+              isSinglePage
+                ? "w-full max-w-xs"
+                : "grid w-full grid-cols-1 gap-4 sm:grid-cols-2"
+            }
+          >
             <FileUploadSlot
-              label="Retro"
+              label={frontLabel}
               accept={ACCEPTED_TYPES_ATTR}
-              documentState={backState}
-              onFileSelect={handleFileSelect(setBackState, BACK_STORAGE_KEY)}
-              previouslyUploaded={backPreviouslyUploaded}
+              documentState={frontState}
+              onFileSelect={handleFileSelect(setFrontState, FRONT_STORAGE_KEY)}
+              previouslyUploaded={frontPreviouslyUploaded}
             />
-          )}
+            {!isSinglePage && (
+              <FileUploadSlot
+                label="Retro"
+                accept={ACCEPTED_TYPES_ATTR}
+                documentState={backState}
+                onFileSelect={handleFileSelect(setBackState, BACK_STORAGE_KEY)}
+                previouslyUploaded={backPreviouslyUploaded}
+              />
+            )}
+          </div>
+
+          {verificationPhase !== "idle" && <AiProcessingStatus phase={verificationPhase} />}
         </div>
+      </div>
 
-        {verificationPhase !== "idle" && <AiProcessingStatus phase={verificationPhase} />}
-
-        <div className="flex flex-col items-center gap-2">
+      <div
+        className="sticky bottom-0 border-solid border-dark/15 bg-bg px-6 pt-3"
+        style={{
+          borderTopWidth: "0.5px",
+          paddingBottom: "calc(12px + env(safe-area-inset-bottom))",
+        }}
+      >
+        <div className="mx-auto flex w-full max-w-md flex-col items-center gap-1">
+          {showHint && !allUploaded && (
+            <p className="text-xs text-muted">
+              Carica il documento prima di continuare
+            </p>
+          )}
           <button
             type="button"
             onClick={handleButtonClick}
             onMouseEnter={() => !allUploaded && setShowHint(true)}
             onMouseLeave={() => setShowHint(false)}
             aria-disabled={!isReadyToContinue}
-            className={`flex w-[85%] items-center justify-center rounded-full px-10 py-3 text-base font-semibold leading-none shadow-sm transition-colors sm:w-auto sm:px-14 ${
+            className={`flex min-h-[48px] w-full items-center justify-center rounded-full px-10 text-base font-semibold leading-none shadow-sm transition-colors ${
               isReadyToContinue
                 ? "bg-dark text-text-light hover:bg-dark/90"
                 : "cursor-not-allowed bg-dark/40 text-text-light"
@@ -210,12 +221,6 @@ export default function IdentityDocumentScreen({
           >
             Avanti
           </button>
-
-          {showHint && !allUploaded && (
-            <p className="text-xs text-muted">
-              Carica il documento prima di continuare
-            </p>
-          )}
         </div>
       </div>
     </div>

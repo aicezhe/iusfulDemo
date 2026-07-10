@@ -1,9 +1,10 @@
 type NavArrowsProps = {
   onBack: () => void;
   onForward?: () => void;
+  centerLabel?: string;
 };
 
-export default function NavArrows({ onBack, onForward }: NavArrowsProps) {
+export default function NavArrows({ onBack, onForward, centerLabel }: NavArrowsProps) {
   return (
     <div className="absolute inset-x-4 top-4 z-20 flex items-center justify-between">
       <button
@@ -15,7 +16,13 @@ export default function NavArrows({ onBack, onForward }: NavArrowsProps) {
         <ArrowIcon direction="left" />
       </button>
 
-      {onForward && (
+      {centerLabel && (
+        <span className="text-[11px] uppercase tracking-[0.08em] text-muted">
+          {centerLabel}
+        </span>
+      )}
+
+      {onForward ? (
         <button
           type="button"
           onClick={onForward}
@@ -24,6 +31,9 @@ export default function NavArrows({ onBack, onForward }: NavArrowsProps) {
         >
           <ArrowIcon direction="right" />
         </button>
+      ) : (
+        // Keep the label centred when there is no forward arrow.
+        <span className="h-9 w-9" aria-hidden="true" />
       )}
     </div>
   );
