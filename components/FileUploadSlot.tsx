@@ -26,6 +26,7 @@ export default function FileUploadSlot({
   previouslyUploaded = false,
 }: FileUploadSlotProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [lastFile, setLastFile] = useState<File | null>(null);
   const [isSlow, setIsSlow] = useState(false);
@@ -45,6 +46,11 @@ export default function FileUploadSlot({
   const openFilePicker = () => {
     if (isLoading) return;
     fileInputRef.current?.click();
+  };
+
+  const openCamera = () => {
+    if (isLoading) return;
+    cameraInputRef.current?.click();
   };
 
   const selectFile = (file: File) => {
@@ -117,14 +123,38 @@ export default function FileUploadSlot({
         {status === "empty" && (
           <>
             <UploadIcon />
-            <p className="text-sm text-text">Trascina qui il file oppure</p>
-            <button
-              type="button"
-              onClick={openFilePicker}
-              className="rounded-full border border-dark/20 px-5 py-2 text-sm font-medium text-dark transition-colors hover:bg-dark/5"
-            >
-              Sfoglia
-            </button>
+
+            {/* Mobile-first (touch): the phone camera is the primary path.
+                Hidden on pointer devices, where drag-and-drop takes over. */}
+            <div className="flex flex-col items-center gap-2 pointer-fine:hidden">
+              <button
+                type="button"
+                onClick={openCamera}
+                className="flex min-h-[44px] items-center rounded-full bg-accent px-6 text-sm font-semibold text-dark transition-colors hover:bg-accent/90"
+              >
+                Scatta una foto
+              </button>
+              <button
+                type="button"
+                onClick={openFilePicker}
+                className="flex min-h-[44px] items-center rounded-full border border-dark/20 px-6 text-sm font-medium text-dark transition-colors hover:bg-dark/5"
+              >
+                Scegli un file
+              </button>
+            </div>
+
+            {/* Pointer devices (mouse/trackpad): keep drag-and-drop. */}
+            <div className="hidden flex-col items-center gap-2 pointer-fine:flex">
+              <p className="text-sm text-text">Trascina qui il file oppure</p>
+              <button
+                type="button"
+                onClick={openFilePicker}
+                className="rounded-full border border-dark/20 px-5 py-2 text-sm font-medium text-dark transition-colors hover:bg-dark/5"
+              >
+                Sfoglia
+              </button>
+            </div>
+
             <p className="text-xs text-muted">PDF o JPEG · Max {MAX_SIZE_MB}MB</p>
             {previouslyUploaded && (
               <p className="text-xs text-muted">
@@ -203,6 +233,16 @@ export default function FileUploadSlot({
         )}
       </div>
 
+      {/* Two separate inputs: `capture` can't be reliably removed at runtime
+          on iOS, so the camera path gets its own element. */}
+      <input
+        ref={cameraInputRef}
+        type="file"
+        accept={accept}
+        capture="environment"
+        onChange={handleInputChange}
+        className="hidden"
+      />
       <input
         ref={fileInputRef}
         type="file"
