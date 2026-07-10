@@ -16,7 +16,7 @@ Nella raccolta documenti di uno studio legale digitale, i clienti sono spesso an
 
 ---
 
-##"- Quali scelte UX ho fatto per ridurre l'ansia dell'utente e prevenire errori prima che avvengano?"
+## "- Quali scelte UX ho fatto per ridurre l'ansia dell'utente e prevenire errori prima che avvengano?"
 
 **Linguaggio concreto, non rassicurazioni generiche.** *"Due documenti, senza complicazioni"*, *"Bastano 3 passaggi veloci"* sapere esattamente quanto manca rassicura più di una promessa vaga: l'incertezza genera ansia, non la difficoltà in sé. Il messaggio emotivo viene sempre prima di quello funzionale.
 
