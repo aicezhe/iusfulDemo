@@ -16,7 +16,7 @@ Nella raccolta documenti di uno studio legale digitale, i clienti sono spesso an
 
 ---
 
-## Quali scelte UX ho fatto per ridurre l'ansia dell'utente e prevenire errori prima che avvengano?
+##"- Quali scelte UX ho fatto per ridurre l'ansia dell'utente e prevenire errori prima che avvengano?"
 
 **Linguaggio concreto, non rassicurazioni generiche.** *"Due documenti, senza complicazioni"*, *"Bastano 3 passaggi veloci"* sapere esattamente quanto manca rassicura più di una promessa vaga: l'incertezza genera ansia, non la difficoltà in sé. Il messaggio emotivo viene sempre prima di quello funzionale.
 
@@ -40,7 +40,7 @@ Nella raccolta documenti di uno studio legale digitale, i clienti sono spesso an
 
 ---
 
-## Se avessi più tempo, quali metriche traccheresti per capire dove i clienti si bloccano in questa schermata e come miglioreresti il prodotto?
+## "- Se avessi più tempo, quali metriche traccheresti per capire dove i clienti si bloccano in questa schermata e come miglioreresti il prodotto?"
 
 **Metriche.** Drop-off per step (dove si abbandona di più) · tentativi falliti prima del successo, per tipo di errore (se molti sbagliano formato, il problema è la comunicazione, non l'utente) · tempo medio per step (uno step anomalo indica confusione) · percentuale di apertura degli accordion informativi (se quasi tutti li aprono, quell'info dovrebbe essere visibile di default) · tasso di abbandono dopo un errore (misura quanto un messaggio è davvero "non frustrante"). Insieme dicono non solo *dove* ci si blocca ma *perché*: drop-off senza errori significa che l'utente non ha capito cosa fare, drop-off dopo errori che il messaggio non lo ha aiutato a uscirne.
 
