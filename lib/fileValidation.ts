@@ -29,7 +29,7 @@ export function validateFile(
     return {
       valid: false,
       errorType: "invalid-format",
-      errorMessage: `Hai caricato un file ${getFileExtension(file.name)}. Serve un PDF o una foto JPEG o PNG.`,
+      errorMessage: `Hai caricato un file ${getFileExtension(file.name)}. Serve un PDF o una foto JPEG.`,
     };
   }
 

@@ -78,13 +78,11 @@ Wizard su un'unica pagina, senza cambio di URL tra gli step: senza backend e per
 
 | Errore | Gestione |
 |---|---|
-| Formato non valido | Messaggio con l'estensione reale caricata; PDF, JPEG o PNG |
+| Formato non valido | Messaggio con l'estensione reale caricata; solo PDF o JPEG |
 | File > 5MB | Compressione lato client per le immagini; alternativa suggerita per i PDF |
 | File danneggiato/vuoto | Messaggio chiaro, invito a riprovare |
 | Errore di rete (simulato) | ~10% casuale; deterministico se il nome file contiene "test-error" |
 | Procedere senza aver caricato | Impedito strutturalmente (pulsante disabilitato) |
-
-Il brief indicava `es. PDF/JPEG`: ho letto `es.` come esemplificativo, non esaustivo, e incluso anche il PNG (screenshot Android, molti scanner).
 
 Test manuale in `test-files/`: `documento-formato-errato.txt`, `documento-troppo-grande.pdf`, `documento-vuoto.pdf`, `test-error.pdf` (errore di rete deterministico), `documento-valido.pdf`.
 
