@@ -162,7 +162,7 @@ export default function FileUploadSlot({
               <button
                 type="button"
                 onClick={openFilePicker}
-                className="text-sm font-semibold text-accent underline underline-offset-2 transition-colors hover:text-accent/80"
+                className="text-sm font-semibold text-dark underline underline-offset-2 transition-colors hover:text-dark/80"
               >
                 Scegli un file
               </button>
