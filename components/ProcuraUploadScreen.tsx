@@ -44,6 +44,11 @@ type ProcuraUploadScreenProps = {
 export default function ProcuraUploadScreen({ onBack }: ProcuraUploadScreenProps) {
   const [hasDownloaded, setHasDownloaded] = useState(false);
   const [alreadyHasForm, setAlreadyHasForm] = useState(false);
+  // Signing happens off-screen (printer, Files app, pen), so nothing in the app
+  // can observe it — the user confirms it explicitly. Deliberately NOT persisted:
+  // a "signed" flag restored with no file behind it would be phantom state.
+  const [procuraSigned, setProcuraSigned] = useState(false);
+  const [announcement, setAnnouncement] = useState("");
   const [showDownloadConfirmation, setShowDownloadConfirmation] = useState(false);
   const [documentState, setDocumentState] = useState<DocumentState>(EMPTY_STATE);
   const [previouslyUploaded, setPreviouslyUploaded] = useState(false);
@@ -65,20 +70,15 @@ export default function ProcuraUploadScreen({ onBack }: ProcuraUploadScreenProps
 
   const isReadyToContinue = verificationPhase === "done";
 
-  // The upload slot opens once the user has the signed form in hand — either
-  // by downloading it here, or by declaring they already have it.
-  const canUpload = hasDownloaded || alreadyHasForm;
+  // Sequence: 1 download → 2 confirm signed → 3 upload. Each step is completed by
+  // an explicit user action; step 2 is NEVER inferred from a file existing in
+  // step 3. The upload slot opens only once the user confirms they've signed
+  // (checkbox), or declares up front they already have a signed form.
+  const step1Done = hasDownloaded || alreadyHasForm;
+  const step2Done = procuraSigned || alreadyHasForm;
+  const canUpload = step2Done;
 
-  // Three-state progress for the sub-steps, derived from real progress so it
-  // can never drift out of sync: a step is "completed" once its work is done,
-  // "active" if it's the first not-yet-done step, "upcoming" otherwise.
-  const stepCompletion = [
-    canUpload,
-    alreadyHasForm ||
-      documentState.status === "loading" ||
-      documentState.status === "success",
-    verificationPhase === "done",
-  ];
+  const stepCompletion = [step1Done, step2Done, verificationPhase === "done"];
   const activeStepIndex = stepCompletion.findIndex((done) => !done);
   const stepStatusFor = (index: number): StepStatus => {
     if (stepCompletion[index]) return "completed";
@@ -95,6 +95,28 @@ export default function ProcuraUploadScreen({ onBack }: ProcuraUploadScreenProps
     saveDocumentStatus(DOWNLOAD_STORAGE_KEY, "done");
     setShowDownloadConfirmation(true);
     setTimeout(() => setShowDownloadConfirmation(false), DOWNLOAD_CONFIRMATION_MS);
+  };
+
+  const UPLOAD_UNLOCKED_MESSAGE =
+    "Modulo confermato come firmato. Ora puoi caricarlo qui sotto.";
+
+  const handleSignedToggle = (checked: boolean) => {
+    setProcuraSigned(checked);
+    if (checked) {
+      setAnnouncement(UPLOAD_UNLOCKED_MESSAGE);
+      return;
+    }
+    // Unchecking says the premise changed: there's nothing signed to upload.
+    // Re-lock step 3 and discard any file already sitting there.
+    setAlreadyHasForm(false);
+    setDocumentState(EMPTY_STATE);
+    setVerificationPhase("idle");
+    setAnnouncement("");
+  };
+
+  const handleAlreadyHasForm = () => {
+    setAlreadyHasForm(true);
+    setAnnouncement(UPLOAD_UNLOCKED_MESSAGE);
   };
 
   const handleFileSelect = (file: File) => {
@@ -156,6 +178,10 @@ export default function ProcuraUploadScreen({ onBack }: ProcuraUploadScreenProps
       {showDownloadConfirmation && <SuccessOverlay message="Scaricato ✓" />}
       {showCompletion && <CompletionOverlay onDismiss={() => setShowCompletion(false)} />}
 
+      <p className="sr-only" aria-live="polite">
+        {announcement}
+      </p>
+
       <div className="flex w-full max-w-md flex-col items-center gap-8 sm:max-w-lg">
         <div className="flex flex-col items-center gap-3">
           <StepIndicator totalSteps={2} currentStep={2} />
@@ -197,7 +223,7 @@ export default function ProcuraUploadScreen({ onBack }: ProcuraUploadScreenProps
             {!canUpload && (
               <button
                 type="button"
-                onClick={() => setAlreadyHasForm(true)}
+                onClick={handleAlreadyHasForm}
                 className="mt-1 text-xs text-muted underline underline-offset-2 transition-colors hover:text-dark"
               >
                 Ho già il modulo firmato
@@ -207,7 +233,7 @@ export default function ProcuraUploadScreen({ onBack }: ProcuraUploadScreenProps
 
           <StepDivider />
 
-          <StepRow number={2} label="Firmalo, poi torna qui" status={stepStatusFor(1)}>
+          <StepRow number={2} label="Firmalo" status={stepStatusFor(1)}>
             <p className="text-sm text-muted">
               Stampalo e firmalo a mano, oppure firmalo direttamente sul telefono.
             </p>
@@ -220,18 +246,34 @@ export default function ProcuraUploadScreen({ onBack }: ProcuraUploadScreenProps
                 poi Compila e firma.
               </Accordion>
             </div>
+
+            <label className="mt-1 flex min-h-[44px] cursor-pointer items-center gap-2.5">
+              <input
+                type="checkbox"
+                checked={step2Done}
+                disabled={!step1Done}
+                onChange={(event) => handleSignedToggle(event.target.checked)}
+                className="peer sr-only"
+              />
+              <span
+                aria-hidden="true"
+                style={{ borderWidth: "1.5px", borderRadius: "var(--radius)" }}
+                className={`flex h-[22px] w-[22px] shrink-0 items-center justify-center border-solid transition-colors peer-focus-visible:ring-2 peer-focus-visible:ring-dark/40 peer-focus-visible:ring-offset-1 ${
+                  step2Done ? "border-dark bg-dark" : "border-muted/50 bg-transparent"
+                }`}
+              >
+                {step2Done && <CheckGlyph />}
+              </span>
+              <span className={`text-sm ${step1Done ? "text-dark" : "text-muted"}`}>
+                Ho firmato il modulo
+              </span>
+            </label>
           </StepRow>
 
           <StepDivider />
 
           <StepRow number={3} label="Carica il modulo firmato" status={stepStatusFor(2)}>
             <div className="w-full">
-              {documentState.status === "empty" && (
-                <p className="mb-2 text-xs text-muted">
-                  Assicurati che il modulo sia firmato prima di caricarlo.
-                </p>
-              )}
-
               <div className="relative">
                 {!canUpload && (
                   <div
@@ -254,7 +296,7 @@ export default function ProcuraUploadScreen({ onBack }: ProcuraUploadScreenProps
 
               {!canUpload && showUploadHint && (
                 <p className="mt-2 text-xs text-muted">
-                  Scarica il modulo prima di caricarlo
+                  Conferma di aver firmato il modulo prima di caricarlo
                 </p>
               )}
 
@@ -355,6 +397,25 @@ function CheckIcon() {
       stroke="currentColor"
       strokeWidth="2.5"
       className="shrink-0 text-dark"
+      aria-hidden="true"
+    >
+      <path d="M5 12.5l4.5 4.5L19 7" />
+    </svg>
+  );
+}
+
+function CheckGlyph() {
+  return (
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="3"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="text-text-light"
       aria-hidden="true"
     >
       <path d="M5 12.5l4.5 4.5L19 7" />

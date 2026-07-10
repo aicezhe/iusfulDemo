@@ -8,6 +8,7 @@
   --color-text-light: #f2ede3;
   --color-muted: #7a8a80;
   --color-warning: #e08a4a;
+  --radius: 6px;
 }
 
 @theme inline {
